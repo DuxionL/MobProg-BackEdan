@@ -4,7 +4,6 @@ import '../widgets/bottom_nav_bar.dart';
 import '../../asset/asset_page.dart';
 import '../../settings/settings_page.dart';
 import '../../transaction/screens/transaction_list_page.dart';
-import '../widgets/custom_app_bar.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
