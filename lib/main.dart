@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
 import 'theme/theme.dart';
 import 'features/home/screens/home_page.dart';
+import 'features/transaction/transaction_provider.dart';
 
 void main() {
   runApp(const MyApp());
@@ -9,15 +12,17 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Money Tracker',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.darkTheme,
-      themeMode: ThemeMode.dark,
-      home: const HomePage()
+    return ChangeNotifierProvider(
+      create: (context) => TransactionProvider(),
+      child: MaterialApp(
+        title: 'Money Tracker',
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.darkTheme,
+        themeMode: ThemeMode.dark,
+        home: const HomePage(),
+      ),
     );
   }
 }
