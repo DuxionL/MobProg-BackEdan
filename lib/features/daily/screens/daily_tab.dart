@@ -5,8 +5,6 @@ import '../widgets/summary_header.dart';
 import '../widgets/transaction_list_item.dart';
 import '../widgets/empty_state_widget.dart';
 
-/// Tab "Harian" — nampilin ringkasan bulan aktif + list transaksi
-/// dikelompokkan per tanggal.
 class DailyTab extends StatefulWidget {
   const DailyTab({super.key});
 
@@ -15,8 +13,7 @@ class DailyTab extends StatefulWidget {
 }
 
 class _DailyTabState extends State<DailyTab> {
-  // TODO: sinkronkan dengan state bulan aktif dari AppBar (Anggota 1) kalau sudah ada.
-  // Sementara pakai state lokal dulu supaya tab ini bisa berdiri sendiri untuk testing.
+  
   DateTime _activeMonth = DateTime(DateTime.now().year, DateTime.now().month);
 
   @override
