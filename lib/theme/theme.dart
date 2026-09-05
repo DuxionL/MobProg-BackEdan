@@ -5,6 +5,7 @@ class AppTheme {
   static const Color accentRed = Color(0xFFFF5B4E);
   static const Color textSecondary = Color(0xFF9CA3AF);
   static const Color surface = Color(0xFF20232F);
+  static const Color textPrimary = Colors.white;
 
   static ThemeData get darkTheme {
     return ThemeData(
