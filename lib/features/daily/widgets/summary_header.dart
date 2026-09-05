@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import '../../transaction/transaction_provider.dart';
 import '../../../theme/theme.dart';
 
-
 class SummaryHeader extends StatelessWidget {
   final DateTime month;
 
@@ -40,7 +39,7 @@ class SummaryHeader extends StatelessWidget {
               _SummaryItem(
                 label: 'Total',
                 value: total,
-                color: Colors.white,
+                color: AppTheme.textPrimary,
               ),
             ],
           ),
