@@ -6,9 +6,6 @@ import '../widgets/transaction_list_item.dart';
 import '../widgets/empty_state_widget.dart';
 import '../../../models/transaction.dart';
 
-/// Tab "Kalender" — grid tanggal sebulan, tiap kotak nampilin indikator
-/// titik + nominal kecil kalau ada transaksi di hari itu. Tap tanggal untuk
-/// lihat list transaksi hari tersebut.
 class CalendarTab extends StatefulWidget {
   final DateTime month;
 
@@ -21,7 +18,7 @@ class CalendarTab extends StatefulWidget {
 class _CalendarTabState extends State<CalendarTab> {
   DateTime? _selectedDay;
 
-  static const _dayLabels = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+  static const _dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +59,7 @@ class _CalendarTabState extends State<CalendarTab> {
                     label,
                     style: TextStyle(
                       fontSize: 12,
-                      color: label == 'Min' ? Colors.redAccent : Colors.grey,
+                      color: label == 'Sun' ? Colors.redAccent : Colors.grey,
                     ),
                   ),
                 ),
@@ -154,7 +151,7 @@ class _CalendarTabState extends State<CalendarTab> {
   Widget _buildSelectedDayList(Map<DateTime, List<Transaction>> grouped) {
     if (_selectedDay == null) {
       return const EmptyStateWidget(
-        message: 'Pilih tanggal untuk lihat transaksi',
+        message: 'Select a date to view transactions',
         icon: Icons.touch_app_outlined,
       );
     }
@@ -171,12 +168,10 @@ class _CalendarTabState extends State<CalendarTab> {
     );
   }
 
-  /// Bikin list tanggal untuk grid bulan ini, termasuk null-padding
-  /// di awal supaya kotak pertama jatuh di hari yang benar (Minggu = index 0).
   List<DateTime?> _buildMonthGrid(DateTime month) {
     final firstDay = DateTime(month.year, month.month, 1);
     final daysInMonth = DateTime(month.year, month.month + 1, 0).day;
-    final leadingEmpty = firstDay.weekday % 7; // Minggu=7 -> jadi 0
+    final leadingEmpty = firstDay.weekday % 7; // Sunday=7 -> becomes 0
 
     return [
       ...List.filled(leadingEmpty, null),

@@ -5,9 +5,6 @@ import '../widgets/summary_header.dart';
 import '../widgets/transaction_list_item.dart';
 import '../widgets/empty_state_widget.dart';
 
-/// Tab "Harian" — nampilin ringkasan bulan aktif + list transaksi
-/// dikelompokkan per tanggal. Bulan aktif dikontrol dari luar (HomePage),
-/// supaya sinkron dengan panah navigasi bulan di CustomAppBar.
 class DailyTab extends StatelessWidget {
   final DateTime month;
 
@@ -58,7 +55,7 @@ class DailyTab extends StatelessWidget {
   }
 
   String _formatDayHeader(DateTime day) {
-    const dayNames = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
+    const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
     final dayName = dayNames[day.weekday - 1];
     return '$dayName, ${day.day}/${day.month}/${day.year}';
   }
