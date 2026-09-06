@@ -6,6 +6,7 @@ import '../../asset/asset_page.dart';
 import '../../settings/settings_page.dart';
 import '../../transaction/screens/transaction_list_page.dart';
 import '../widgets/fab_button.dart';
+import '../../statistic/screens/statistic_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -20,7 +21,7 @@ class _HomePageState extends State<HomePage> {
  
   final List<Widget> _pages = [
     const TransactionListPage(),
-    const Center(child: Text('Tab Statistik')),
+    const StatisticPage(),
     const AssetPage(),
     const SettingsPage(),
   ];
