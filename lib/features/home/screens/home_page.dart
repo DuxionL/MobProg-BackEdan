@@ -4,7 +4,7 @@ import 'package:money_manager/features/transaction/screens/add_transaction_page.
 import '../widgets/bottom_nav_bar.dart';
 import '../../asset/asset_page.dart';
 import '../../settings/settings_page.dart';
-import '../../daily/screens/transaction_tabs_shell.dart';
+import '../../daily/screens/tab_bar_wrapper.dart';
 import '../widgets/fab_button.dart';
 
 class HomePage extends StatefulWidget {
@@ -28,9 +28,8 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-  
     final pages = [
-      TransactionTabsShell(month: _currentMonth),
+      TabBarWrapper(month: _currentMonth),
       const Center(child: Text('Statistics Tab')),
       const AssetPage(),
       const SettingsPage(),
@@ -50,6 +49,7 @@ class _HomePageState extends State<HomePage> {
           });
         },
         onSearchTap: () {
+          // TODO: search logic not implemented yet
         },
       ),
       body: pages[_selectedIndex],

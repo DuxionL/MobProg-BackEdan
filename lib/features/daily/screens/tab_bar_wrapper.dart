@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:money_manager/features/daily/screens/daily_tab.dart';
 import 'package:money_manager/features/daily/screens/calendar_tab.dart';
 
-class TransactionTabsShell extends StatelessWidget {
+class TabBarWrapper extends StatelessWidget {
   final DateTime month;
 
-  const TransactionTabsShell({super.key, required this.month});
+  const TabBarWrapper({super.key, required this.month});
 
   @override
   Widget build(BuildContext context) {
