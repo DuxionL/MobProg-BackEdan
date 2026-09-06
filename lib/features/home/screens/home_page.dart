@@ -4,9 +4,8 @@ import 'package:money_manager/features/transaction/screens/add_transaction_page.
 import '../widgets/bottom_nav_bar.dart';
 import '../../asset/asset_page.dart';
 import '../../settings/settings_page.dart';
-import '../../transaction/screens/transaction_list_page.dart';
+import '../../daily/screens/transaction_tabs_shell.dart';
 import '../widgets/fab_button.dart';
-import '../../statistic/screens/statistic_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -18,24 +17,25 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
   DateTime _currentMonth = DateTime.now();
- 
-  final List<Widget> _pages = [
-    const TransactionListPage(),
-    const StatisticPage(),
-    const AssetPage(),
-    const SettingsPage(),
-  ];
- 
+
   String get _monthLabel {
     const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
-      'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
     ];
     return '${months[_currentMonth.month - 1]} ${_currentMonth.year}';
   }
- 
+
   @override
   Widget build(BuildContext context) {
+  
+    final pages = [
+      TransactionTabsShell(month: _currentMonth),
+      const Center(child: Text('Statistics Tab')),
+      const AssetPage(),
+      const SettingsPage(),
+    ];
+
     return Scaffold(
       appBar: CustomAppBar(
         monthLabel: _monthLabel,
@@ -50,10 +50,9 @@ class _HomePageState extends State<HomePage> {
           });
         },
         onSearchTap: () {
-          // nanti blom bikin logic search
         },
       ),
-      body: _pages[_selectedIndex],
+      body: pages[_selectedIndex],
       bottomNavigationBar: BottomNavBar(
         selectedIndex: _selectedIndex,
         onTap: (index) {
@@ -61,15 +60,15 @@ class _HomePageState extends State<HomePage> {
         },
       ),
       floatingActionButton: _selectedIndex == 0
-      ? FabButton(
-        onPressed:(){
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const AddTransactionPage()),
-          );
-        },
-      )
-      : null,  
+          ? FabButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const AddTransactionPage()),
+                );
+              },
+            )
+          : null,
     );
   }
 }
