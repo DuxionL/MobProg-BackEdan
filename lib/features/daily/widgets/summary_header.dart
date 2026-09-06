@@ -27,12 +27,12 @@ class SummaryHeader extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               _SummaryItem(
-                label: 'Pendapatan',
+                label: 'Income',
                 value: income,
                 color: Colors.blue,
               ),
               _SummaryItem(
-                label: 'Pengeluaran',
+                label: 'Expenses',
                 value: expense,
                 color: AppTheme.accentRed,
               ),

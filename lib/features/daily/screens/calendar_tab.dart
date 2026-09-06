@@ -10,15 +10,15 @@ import '../../../models/transaction.dart';
 /// titik + nominal kecil kalau ada transaksi di hari itu. Tap tanggal untuk
 /// lihat list transaksi hari tersebut.
 class CalendarTab extends StatefulWidget {
-  const CalendarTab({super.key});
+  final DateTime month;
+
+  const CalendarTab({super.key, required this.month});
 
   @override
   State<CalendarTab> createState() => _CalendarTabState();
 }
 
 class _CalendarTabState extends State<CalendarTab> {
-  // TODO: sinkronkan dengan state bulan aktif dari AppBar (Anggota 1) kalau sudah ada.
-  DateTime _activeMonth = DateTime(DateTime.now().year, DateTime.now().month);
   DateTime? _selectedDay;
 
   static const _dayLabels = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
@@ -28,12 +28,12 @@ class _CalendarTabState extends State<CalendarTab> {
     return Consumer<TransactionProvider>(
       builder: (context, provider, _) {
         final Map<DateTime, List<Transaction>> grouped =
-            provider.groupedByDay(_activeMonth);
-        final days = _buildMonthGrid(_activeMonth);
+            provider.groupedByDay(widget.month);
+        final days = _buildMonthGrid(widget.month);
 
         return Column(
           children: [
-            SummaryHeader(month: _activeMonth),
+            SummaryHeader(month: widget.month),
             _buildWeekdayHeader(),
             Expanded(
               flex: 3,

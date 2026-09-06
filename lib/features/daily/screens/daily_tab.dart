@@ -5,26 +5,23 @@ import '../widgets/summary_header.dart';
 import '../widgets/transaction_list_item.dart';
 import '../widgets/empty_state_widget.dart';
 
-class DailyTab extends StatefulWidget {
-  const DailyTab({super.key});
+/// Tab "Harian" — nampilin ringkasan bulan aktif + list transaksi
+/// dikelompokkan per tanggal. Bulan aktif dikontrol dari luar (HomePage),
+/// supaya sinkron dengan panah navigasi bulan di CustomAppBar.
+class DailyTab extends StatelessWidget {
+  final DateTime month;
 
-  @override
-  State<DailyTab> createState() => _DailyTabState();
-}
-
-class _DailyTabState extends State<DailyTab> {
-  
-  DateTime _activeMonth = DateTime(DateTime.now().year, DateTime.now().month);
+  const DailyTab({super.key, required this.month});
 
   @override
   Widget build(BuildContext context) {
     return Consumer<TransactionProvider>(
       builder: (context, provider, _) {
-        final grouped = provider.groupedByDay(_activeMonth);
+        final grouped = provider.groupedByDay(month);
 
         return Column(
           children: [
-            SummaryHeader(month: _activeMonth),
+            SummaryHeader(month: month),
             Expanded(
               child: grouped.isEmpty
                   ? const EmptyStateWidget()

@@ -7,7 +7,7 @@ class EmptyStateWidget extends StatelessWidget {
 
   const EmptyStateWidget({
     super.key,
-    this.message = 'Tidak ada data',
+    this.message = 'No data available',
     this.icon = Icons.savings_outlined,
   });
 
