@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:money_manager/features/home/widgets/custom_app_bar.dart';
+import 'package:money_manager/features/transaction/screens/add_transaction_page.dart';
 import '../widgets/bottom_nav_bar.dart';
 import '../../asset/asset_page.dart';
 import '../../settings/settings_page.dart';
 import '../../transaction/screens/transaction_list_page.dart';
+import '../widgets/fab_button.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -57,6 +59,16 @@ class _HomePageState extends State<HomePage> {
           setState(() => _selectedIndex = index);
         },
       ),
+      floatingActionButton: _selectedIndex == 0
+      ? FabButton(
+        onPressed:(){
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const AddTransactionPage()),
+          );
+        },
+      )
+      : null,  
     );
   }
 }
