@@ -8,6 +8,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget{
   final VoidCallback? onFavoriteTap;
   final VoidCallback? onSearchTap;
   final VoidCallback? onFilterTap;
+  final VoidCallback? onMonthTap;
 
   const CustomAppBar({
     super.key,
@@ -17,6 +18,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget{
     this.onFilterTap,
     this.onNextMonth,
     this.onSearchTap,
+    this.onMonthTap,
   });
 
   @override
@@ -32,13 +34,16 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget{
             icon: const Icon(Icons.chevron_left, color: AppTheme.textPrimary),
             onPressed: onPreviousMonth,
           ),
-          Text(
+          GestureDetector(
+            onTap: onMonthTap,
+            child: Text(
             monthLabel,
             style: const TextStyle(
               color: AppTheme.textPrimary,
               fontSize: 18,
               fontWeight: FontWeight.w600,
             ),
+          ),
           ),
           IconButton(
             icon: const Icon(Icons.chevron_right, color: AppTheme.textPrimary),
