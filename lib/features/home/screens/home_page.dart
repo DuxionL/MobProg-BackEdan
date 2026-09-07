@@ -49,7 +49,6 @@ class _HomePageState extends State<HomePage> {
           });
         },
         onSearchTap: () {
-          // TODO: search logic not implemented yet
         },
       ),
       body: pages[_selectedIndex],

@@ -14,7 +14,8 @@ class TabBarWrapper extends StatelessWidget {
       child: Column(
         children: [
           const TabBar(
-            isScrollable: true,
+            isScrollable: false,
+            labelPadding: EdgeInsets.symmetric(horizontal: 4),
             tabs: [
               Tab(text: 'Daily'),
               Tab(text: 'Calendar'),
