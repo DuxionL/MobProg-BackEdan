@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../transaction/transaction_provider.dart';
+import '../../../theme/theme.dart';
 import '../widgets/summary_header.dart';
 import '../widgets/transaction_list_item.dart';
 import '../widgets/empty_state_widget.dart';
@@ -39,7 +40,10 @@ class _CalendarTabState extends State<CalendarTab> {
             const Divider(height: 1),
             Expanded(
               flex: 2,
-              child: _buildSelectedDayList(grouped),
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 200),
+                child: _buildSelectedDayList(grouped),
+              ),
             ),
           ],
         );
@@ -59,7 +63,7 @@ class _CalendarTabState extends State<CalendarTab> {
                     label,
                     style: TextStyle(
                       fontSize: 12,
-                      color: label == 'Sun' ? Colors.redAccent : Colors.grey,
+                      color: label == 'Sun' ? AppTheme.accentRed : AppTheme.textSecondary,
                     ),
                   ),
                 ),
@@ -99,12 +103,14 @@ class _CalendarTabState extends State<CalendarTab> {
 
         return InkWell(
           onTap: () => setState(() => _selectedDay = normalizedDay),
-          child: Container(
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeOut,
             margin: const EdgeInsets.all(2),
             decoration: BoxDecoration(
-              color: isSelected ? Colors.white.withOpacity(0.08) : null,
+              color: isSelected ? AppTheme.accentRed.withOpacity(0.12) : null,
               border: isToday
-                  ? Border.all(color: Colors.redAccent, width: 1)
+                  ? Border.all(color: AppTheme.accentRed, width: 1)
                   : null,
               borderRadius: BorderRadius.circular(6),
             ),
@@ -116,7 +122,7 @@ class _CalendarTabState extends State<CalendarTab> {
                   style: TextStyle(
                     fontSize: 13,
                     color: day.weekday == DateTime.sunday
-                        ? Colors.redAccent
+                        ? AppTheme.accentRed
                         : Colors.white,
                   ),
                 ),
@@ -126,7 +132,7 @@ class _CalendarTabState extends State<CalendarTab> {
                     width: 4,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: net >= 0 ? Colors.blue : Colors.redAccent,
+                      color: net >= 0 ? Colors.blue : AppTheme.accentRed,
                       shape: BoxShape.circle,
                     ),
                   ),
@@ -136,7 +142,7 @@ class _CalendarTabState extends State<CalendarTab> {
                         : net.abs().toStringAsFixed(0),
                     style: TextStyle(
                       fontSize: 9,
-                      color: net >= 0 ? Colors.blue : Colors.redAccent,
+                      color: net >= 0 ? Colors.blue : AppTheme.accentRed,
                     ),
                   ),
                 ],
@@ -151,6 +157,7 @@ class _CalendarTabState extends State<CalendarTab> {
   Widget _buildSelectedDayList(Map<DateTime, List<Transaction>> grouped) {
     if (_selectedDay == null) {
       return const EmptyStateWidget(
+        key: ValueKey('no-selection'),
         message: 'Select a date to view transactions',
         icon: Icons.touch_app_outlined,
       );
@@ -158,10 +165,11 @@ class _CalendarTabState extends State<CalendarTab> {
 
     final transactions = grouped[_selectedDay] ?? [];
     if (transactions.isEmpty) {
-      return const EmptyStateWidget();
+      return EmptyStateWidget(key: ValueKey(_selectedDay));
     }
 
     return ListView.builder(
+      key: ValueKey(_selectedDay),
       itemCount: transactions.length,
       itemBuilder: (context, index) =>
           TransactionListItem(transaction: transactions[index]),

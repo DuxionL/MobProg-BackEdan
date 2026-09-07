@@ -4,6 +4,7 @@ import '../../transaction/transaction_provider.dart';
 import '../widgets/summary_header.dart';
 import '../widgets/transaction_list_item.dart';
 import '../widgets/empty_state_widget.dart';
+import '../../../theme/theme.dart';
 
 class DailyTab extends StatelessWidget {
   final DateTime month;
@@ -20,33 +21,37 @@ class DailyTab extends StatelessWidget {
           children: [
             SummaryHeader(month: month),
             Expanded(
-              child: grouped.isEmpty
-                  ? const EmptyStateWidget()
-                  : ListView(
-                      children: grouped.entries.map((entry) {
-                        final day = entry.key;
-                        final transactions = entry.value;
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-                              child: Text(
-                                _formatDayHeader(day),
-                                style: const TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.grey,
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 200),
+                child: grouped.isEmpty
+                    ? const EmptyStateWidget(key: ValueKey('empty'))
+                    : ListView(
+                        key: ValueKey(month),
+                        children: grouped.entries.map((entry) {
+                          final day = entry.key;
+                          final transactions = entry.value;
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+                                child: Text(
+                                  _formatDayHeader(day),
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppTheme.textSecondary,
+                                  ),
                                 ),
                               ),
-                            ),
-                            ...transactions.map(
-                              (t) => TransactionListItem(transaction: t),
-                            ),
-                          ],
-                        );
-                      }).toList(),
-                    ),
+                              ...transactions.map(
+                                (t) => TransactionListItem(transaction: t),
+                              ),
+                            ],
+                          );
+                        }).toList(),
+                      ),
+              ),
             ),
           ],
         );

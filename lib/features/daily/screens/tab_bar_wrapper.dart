@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:money_manager/features/daily/screens/daily_tab.dart';
 import 'package:money_manager/features/daily/screens/calendar_tab.dart';
+import 'package:money_manager/theme/theme.dart';
 
 class TabBarWrapper extends StatelessWidget {
   final DateTime month;
@@ -13,10 +14,13 @@ class TabBarWrapper extends StatelessWidget {
       length: 5,
       child: Column(
         children: [
-          const TabBar(
+          TabBar(
             isScrollable: false,
-            labelPadding: EdgeInsets.symmetric(horizontal: 4),
-            tabs: [
+            labelPadding: const EdgeInsets.symmetric(horizontal: 4),
+            labelColor: AppTheme.accentRed,
+            unselectedLabelColor: AppTheme.textSecondary,
+            indicatorColor: AppTheme.accentRed,
+            tabs: const [
               Tab(text: 'Daily'),
               Tab(text: 'Calendar'),
               Tab(text: 'Monthly'),

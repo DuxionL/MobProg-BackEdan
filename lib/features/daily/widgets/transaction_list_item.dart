@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../models/transaction.dart';
+import '../../../theme/theme.dart';
 
 class TransactionListItem extends StatelessWidget {
   final Transaction transaction;
@@ -14,6 +15,9 @@ class TransactionListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      color: AppTheme.surface,
+      elevation: 0,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       child: ListTile(
         leading: CircleAvatar(
@@ -24,11 +28,14 @@ class TransactionListItem extends StatelessWidget {
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(_formatTime(transaction.dateTime), style: const TextStyle(fontSize: 12)),
+            Text(
+              _formatTime(transaction.dateTime),
+              style: TextStyle(fontSize: 12, color: AppTheme.textSecondary),
+            ),
             if (transaction.note != null)
               Text(
                 transaction.note!,
-                style: const TextStyle(fontSize: 11, color: Colors.grey),
+                style: TextStyle(fontSize: 11, color: AppTheme.textSecondary),
               ),
           ],
         ),
