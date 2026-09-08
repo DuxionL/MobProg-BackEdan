@@ -6,6 +6,7 @@ import '../../asset/asset_page.dart';
 import '../../settings/settings_page.dart';
 import '../../daily/screens/tab_bar_wrapper.dart';
 import '../widgets/fab_button.dart';
+import '../widgets/month_picker_dialog.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -52,6 +53,12 @@ class _HomePageState extends State<HomePage> {
           setState(() {
             _currentMonth = DateTime(_currentMonth.year, _currentMonth.month + 1);
           });
+        },
+        onMonthTap: () async {
+          final picked = await MonthPickerDialog.show(context, _currentMonth);
+          if (picked != null) {
+            setState(() => _currentMonth = picked);
+          }
         },
         onSearchTap: () {
         },
