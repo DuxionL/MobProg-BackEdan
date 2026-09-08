@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 enum TransactionType { income, expense, transfer }
 
+enum AccountType { cash, bank, card }
+
 extension TransactionTypeExtension on TransactionType {
   String get label {
     switch (this) {
@@ -46,13 +48,19 @@ class Account {
   final String id;
   final String name;
   final double balance;
+  final AccountType type;
 
-  Account({required this.id, required this.name, required this.balance});
+  Account({
+    required this.id,
+    required this.name,
+    required this.balance,
+    required this.type,
+  });
 
   static final List<Account> defaultAccounts = [
-    Account(id: '1', name: 'Cash', balance: 0),
-    Account(id: '2', name: 'Bank Account', balance: 0),
-    Account(id: '3', name: 'Credit Card', balance: 0),
+    Account(id: '1', name: 'Cash', balance: 0, type: AccountType.cash),
+    Account(id: '2', name: 'Bank Account', balance: 0, type: AccountType.bank),
+    Account(id: '3', name: 'Credit Card', balance: 0, type: AccountType.card),
   ];
 }
 
@@ -83,6 +91,7 @@ class Transaction {
     this.fee,
   });
 
+  //warnain transaksi, masukan biru, keluaran merah, transfer ungu, tergantung selera lh
   Color get color {
     if (type == TransactionType.income) return Colors.blue;
     if (type == TransactionType.expense) return Colors.red;

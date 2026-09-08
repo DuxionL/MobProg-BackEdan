@@ -62,6 +62,15 @@ class TransactionProvider extends ChangeNotifier {
 
   double netTotal(DateTime month) => totalIncome(month) - totalExpense(month);
 
+  double totalIncomeByAccount(DateTime month, AccountType accountType) =>
+      _incomeFor(forMonth(month), accountType);
+
+  double totalExpenseByAccount(DateTime month, AccountType accountType) =>
+      _expenseFor(forMonth(month), accountType);
+
+  double netTotalByAccount(DateTime month, AccountType accountType) =>
+      _netFor(forMonth(month), accountType);
+
   double dayIncome(DateTime day) => _transactions
       .where(
         (t) => _isSameDay(t.dateTime, day) && t.type == TransactionType.income,
@@ -73,6 +82,55 @@ class TransactionProvider extends ChangeNotifier {
         (t) => _isSameDay(t.dateTime, day) && t.type == TransactionType.expense,
       )
       .fold(0, (sum, t) => sum + t.amount);
+
+  double dayIncomeByAccount(DateTime day, AccountType accountType) =>
+      _incomeFor(_transactionsOnDay(day), accountType);
+
+  double dayExpenseByAccount(DateTime day, AccountType accountType) =>
+      _expenseFor(_transactionsOnDay(day), accountType);
+
+  double dayNetTotalByAccount(DateTime day, AccountType accountType) =>
+      _netFor(_transactionsOnDay(day), accountType);
+
+  List<Transaction> _transactionsOnDay(DateTime day) =>
+      _transactions.where((t) => _isSameDay(t.dateTime, day)).toList();
+
+  double _incomeFor(List<Transaction> transactions, AccountType accountType) =>
+      transactions
+          .where(
+            (t) =>
+                t.type == TransactionType.income &&
+                t.account?.type == accountType,
+          )
+          .fold(0, (sum, t) => sum + t.amount);
+
+  double _expenseFor(List<Transaction> transactions, AccountType accountType) =>
+      transactions
+          .where(
+            (t) =>
+                t.type == TransactionType.expense &&
+                t.account?.type == accountType,
+          )
+          .fold(0, (sum, t) => sum + t.amount);
+
+  double _netFor(List<Transaction> transactions, AccountType accountType) {
+    var total =
+        _incomeFor(transactions, accountType) -
+        _expenseFor(transactions, accountType);
+
+    for (final transaction in transactions) {
+      if (transaction.type != TransactionType.transfer) continue;
+
+      if (transaction.fromAccount?.type == accountType) {
+        total -= transaction.amount + (transaction.fee ?? 0);
+      }
+      if (transaction.toAccount?.type == accountType) {
+        total += transaction.amount;
+      }
+    }
+
+    return total;
+  }
 
   bool _isSameDay(DateTime a, DateTime b) =>
       a.year == b.year && a.month == b.month && a.day == b.day;
