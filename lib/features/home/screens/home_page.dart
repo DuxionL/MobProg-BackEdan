@@ -7,6 +7,8 @@ import '../../settings/settings_page.dart';
 import '../../daily/screens/tab_bar_wrapper.dart';
 import '../widgets/fab_button.dart';
 import '../widgets/month_picker_dialog.dart';
+import '../../../theme/theme.dart';
+import 'package:flutter/services.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -27,6 +29,40 @@ class _HomePageState extends State<HomePage> {
     return '${months[_currentMonth.month - 1]} ${_currentMonth.year}';
   }
 
+  Future<bool> _showExitConfirmation() async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: AppTheme.surface,
+        title: const Text(
+          'Exit the app',
+          style: TextStyle(color: AppTheme.textPrimary),
+        ),
+        content: const Text(
+          'Are you sure you want to exit?',
+          style: TextStyle(color: AppTheme.textSecondary),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: AppTheme.textSecondary),
+            ),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text(
+              'Exit',
+              style: TextStyle(color: AppTheme.accentRed),
+            ),
+          ),
+        ],
+      ),
+    );
+    return result ?? false;
+  }
+
   @override
   Widget build(BuildContext context) {
     final pages = [
@@ -36,45 +72,56 @@ class _HomePageState extends State<HomePage> {
       const SettingsPage(),
     ];
 
-    return Scaffold(
-      appBar: CustomAppBar(
-        monthLabel: _monthLabel,
-        onPreviousMonth: () {
-          setState(() {
-            _currentMonth = DateTime(_currentMonth.year, _currentMonth.month - 1);
-          });
-        },
-        onNextMonth: () {
-          setState(() {
-            _currentMonth = DateTime(_currentMonth.year, _currentMonth.month + 1);
-          });
-        },
-        onMonthTap: () async {
-          final picked = await MonthPickerDialog.show(context, _currentMonth);
-          if (picked != null) {
-            setState(() => _currentMonth = picked);
-          }
-        },
-        onSearchTap: () {
-        },
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+        final shouldExit = await _showExitConfirmation();
+        if (shouldExit && context.mounted) {
+          SystemNavigator.pop();
+        }
+      },
+
+      child:  Scaffold(
+        appBar: CustomAppBar(
+          monthLabel: _monthLabel,
+          onPreviousMonth: () {
+            setState(() {
+              _currentMonth = DateTime(_currentMonth.year, _currentMonth.month - 1);
+            });
+          },
+          onNextMonth: () {
+            setState(() {
+              _currentMonth = DateTime(_currentMonth.year, _currentMonth.month + 1);
+            });
+          },
+          onMonthTap: () async {
+            final picked = await MonthPickerDialog.show(context, _currentMonth);
+            if (picked != null) {
+              setState(() => _currentMonth = picked);
+            }
+          },
+          onSearchTap: () {
+          },
+        ),
+        body: pages[_selectedIndex],
+        bottomNavigationBar: BottomNavBar(
+          selectedIndex: _selectedIndex,
+          onTap: (index) {
+            setState(() => _selectedIndex = index);
+          },
+        ),
+        floatingActionButton: _selectedIndex == 0
+            ? FabButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const AddTransactionPage()),
+                  );
+                },
+              )
+            : null,
       ),
-      body: pages[_selectedIndex],
-      bottomNavigationBar: BottomNavBar(
-        selectedIndex: _selectedIndex,
-        onTap: (index) {
-          setState(() => _selectedIndex = index);
-        },
-      ),
-      floatingActionButton: _selectedIndex == 0
-          ? FabButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const AddTransactionPage()),
-                );
-              },
-            )
-          : null,
     );
   }
 }
