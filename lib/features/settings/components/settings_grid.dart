@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../configuration_page.dart';
+import '../accounts_settings_page.dart';
 
 class SettingsGrid extends StatelessWidget {
   const SettingsGrid({super.key});
@@ -27,16 +29,31 @@ class SettingsGrid extends StatelessWidget {
         childAspectRatio: 1.2,
       ),
       itemBuilder: (context, index) {
-        return Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(menuItems[index]['icon'], color: Colors.white, size: 28),
-            const SizedBox(height: 10),
-            Text(
-              menuItems[index]['label'],
-              style: const TextStyle(color: Colors.white, fontSize: 12),
-            ),
-          ],
+        return InkWell(
+          onTap: () {
+            if (menuItems[index]['label'] == 'Configuration') {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ConfigurationPage()),
+              );
+            } else if (menuItems[index]['label'] == 'Accounts') {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const AccountsSettingsPage()),
+              );
+            }
+          },
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(menuItems[index]['icon'], color: Colors.white, size: 28),
+              const SizedBox(height: 10),
+              Text(
+                menuItems[index]['label'],
+                style: const TextStyle(color: Colors.white, fontSize: 12),
+              ),
+            ],
+          ),
         );
       },
     );
