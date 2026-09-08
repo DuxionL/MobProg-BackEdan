@@ -29,7 +29,12 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final pages = [
-      TabBarWrapper(month: _currentMonth),
+      TabBarWrapper(
+        month: _currentMonth,
+        onJumpToToday: () {
+          setState(() => _currentMonth = DateTime.now());
+        },
+      ),
       const Center(child: Text('Statistics Tab')),
       const AssetPage(),
       const SettingsPage(),

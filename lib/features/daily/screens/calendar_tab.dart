@@ -9,8 +9,9 @@ import '../../../models/transaction.dart';
 
 class CalendarTab extends StatefulWidget {
   final DateTime month;
+  final VoidCallback? onJumpToToday;
 
-  const CalendarTab({super.key, required this.month});
+  const CalendarTab({super.key, required this.month, this.onJumpToToday});
 
   @override
   State<CalendarTab> createState() => _CalendarTabState();
@@ -20,6 +21,11 @@ class _CalendarTabState extends State<CalendarTab> {
   DateTime? _selectedDay;
 
   static const _dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+  void _jumpToToday() {
+    setState(() => _selectedDay = DateTime.now());
+    widget.onJumpToToday?.call();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,6 +38,14 @@ class _CalendarTabState extends State<CalendarTab> {
         return Column(
           children: [
             SummaryHeader(month: widget.month),
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton.icon(
+                onPressed: _jumpToToday,
+                icon: Icon(Icons.today, size: 16, color: AppTheme.accentRed),
+                label: Text('Today', style: TextStyle(color: AppTheme.accentRed)),
+              ),
+            ),
             _buildWeekdayHeader(),
             Expanded(
               flex: 3,
