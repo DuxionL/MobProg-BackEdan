@@ -87,7 +87,7 @@ class _HomePageState extends State<HomePage> {
         }
       },
 
-      child:  Scaffold(
+      child: Scaffold(
         appBar: CustomAppBar(
           monthLabel: _monthLabel,
           onPreviousMonth: () {
@@ -106,10 +106,27 @@ class _HomePageState extends State<HomePage> {
               setState(() => _currentMonth = picked);
             }
           },
-          onSearchTap: () {
-          },
+          onSearchTap: () {},
         ),
-        body: pages[_selectedIndex],
+        body: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 250),
+          transitionBuilder: (child, animation) {
+            return FadeTransition(
+              opacity: animation,
+              child: SlideTransition(
+                position: Tween<Offset>(
+                  begin: const Offset(0, 0.03),
+                  end: Offset.zero,
+                ).animate(animation),
+                child: child,
+              ),
+            );
+          },
+          child: Container(
+            key: ValueKey<int>(_selectedIndex),
+            child: pages[_selectedIndex],
+          ),
+        ),
         bottomNavigationBar: BottomNavBar(
           selectedIndex: _selectedIndex,
           onTap: (index) {
