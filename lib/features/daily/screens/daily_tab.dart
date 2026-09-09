@@ -27,6 +27,7 @@ class DailyTab extends StatelessWidget {
                     ? const EmptyStateWidget(key: ValueKey('empty'))
                     : ListView(
                         key: ValueKey(month),
+                        padding: const EdgeInsets.only(bottom: 80),
                         children: grouped.entries.map((entry) {
                           final day = entry.key;
                           final transactions = entry.value;

@@ -48,15 +48,11 @@ class _CalendarTabState extends State<CalendarTab> {
             ),
             _buildWeekdayHeader(),
             Expanded(
-              flex: 3,
-              child: _buildCalendarGrid(days, grouped),
-            ),
-            const Divider(height: 1),
-            Expanded(
-              flex: 2,
-              child: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 200),
-                child: _buildSelectedDayList(grouped),
+              child: Stack(
+                children: [
+                  _buildCalendarGrid(days, grouped),
+                  _buildDraggableTransactionSheet(grouped),
+                ],
               ),
             ),
           ],
@@ -97,7 +93,7 @@ class _CalendarTabState extends State<CalendarTab> {
       itemCount: days.length,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 7,
-        childAspectRatio: 0.85,
+        childAspectRatio: 0.82,
       ),
       itemBuilder: (context, index) {
         final day = days[index];
@@ -115,6 +111,8 @@ class _CalendarTabState extends State<CalendarTab> {
           net += (t.type == TransactionType.expense) ? -t.amount : t.amount;
         }
 
+        // Unique categories present that day, capped at 3 dots so it
+        // doesn't overflow a small calendar cell.
         final categoryLabels = transactions
             .map((t) => t.category?.name ?? 'Transfer')
             .toSet()
@@ -140,23 +138,23 @@ class _CalendarTabState extends State<CalendarTab> {
                 Text(
                   '${day.day}',
                   style: TextStyle(
-                    fontSize: 13,
+                    fontSize: 12,
                     color: day.weekday == DateTime.sunday
                         ? AppTheme.accentRed
                         : Colors.white,
                   ),
                 ),
                 if (hasData) ...[
-                  const SizedBox(height: 2),
+                  const SizedBox(height: 1),
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: categoryLabels
                         .map(
                           (label) => Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 1),
+                            padding: const EdgeInsets.symmetric(horizontal: 0.5),
                             child: Container(
-                              width: 4,
-                              height: 4,
+                              width: 3,
+                              height: 3,
                               decoration: BoxDecoration(
                                 color: _categoryColor(label),
                                 shape: BoxShape.circle,
@@ -171,7 +169,7 @@ class _CalendarTabState extends State<CalendarTab> {
                         ? '${(net.abs() / 1000).toStringAsFixed(0)}k'
                         : net.abs().toStringAsFixed(0),
                     style: TextStyle(
-                      fontSize: 9,
+                      fontSize: 8,
                       color: net >= 0 ? Colors.blue : AppTheme.accentRed,
                     ),
                   ),
@@ -200,7 +198,7 @@ class _CalendarTabState extends State<CalendarTab> {
     'Healthcare': Color(0xFF26A69A),
     'Education': Color(0xFF42A5F5),
     'Other Expense': Color(0xFF8D6E63),
-
+  
     'Transfer': Colors.purple,
   };
 
@@ -223,22 +221,73 @@ class _CalendarTabState extends State<CalendarTab> {
     return _fallbackPalette[index];
   }
 
-  Widget _buildSelectedDayList(Map<DateTime, List<Transaction>> grouped) {
+  Widget _buildDraggableTransactionSheet(Map<DateTime, List<Transaction>> grouped) {
+    return DraggableScrollableSheet(
+      initialChildSize: 0.35,
+      minChildSize: 0.15,
+      maxChildSize: 0.9,
+      builder: (context, scrollController) {
+        return Container(
+          decoration: BoxDecoration(
+            color: AppTheme.background,
+            border: Border(top: BorderSide(color: AppTheme.surface, width: 1)),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+          ),
+          child: Column(
+            children: [
+              // Drag handle
+              Container(
+                margin: const EdgeInsets.symmetric(vertical: 8),
+                width: 36,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: AppTheme.textSecondary,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              Expanded(
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 200),
+                  child: _buildSelectedDayList(grouped, scrollController),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildSelectedDayList(
+    Map<DateTime, List<Transaction>> grouped,
+    ScrollController scrollController,
+  ) {
     if (_selectedDay == null) {
-      return const EmptyStateWidget(
-        key: ValueKey('no-selection'),
-        message: 'Select a date to view transactions',
-        icon: Icons.touch_app_outlined,
+      return ListView(
+        key: const ValueKey('no-selection'),
+        controller: scrollController,
+        children: const [
+          EmptyStateWidget(
+            message: 'Select a date to view transactions',
+            icon: Icons.touch_app_outlined,
+          ),
+        ],
       );
     }
 
     final transactions = grouped[_selectedDay] ?? [];
     if (transactions.isEmpty) {
-      return EmptyStateWidget(key: ValueKey(_selectedDay));
+      return ListView(
+        key: ValueKey(_selectedDay),
+        controller: scrollController,
+        children: const [EmptyStateWidget()],
+      );
     }
 
     return ListView.builder(
       key: ValueKey(_selectedDay),
+      controller: scrollController,
+      padding: const EdgeInsets.only(bottom: 90),
       itemCount: transactions.length,
       itemBuilder: (context, index) =>
           TransactionListItem(transaction: transactions[index]),
