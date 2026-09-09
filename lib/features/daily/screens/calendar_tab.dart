@@ -115,6 +115,12 @@ class _CalendarTabState extends State<CalendarTab> {
           net += (t.type == TransactionType.expense) ? -t.amount : t.amount;
         }
 
+        final categoryLabels = transactions
+            .map((t) => t.category?.name ?? 'Transfer')
+            .toSet()
+            .take(3)
+            .toList();
+
         return InkWell(
           onTap: () => setState(() => _selectedDay = normalizedDay),
           child: AnimatedContainer(
@@ -142,13 +148,23 @@ class _CalendarTabState extends State<CalendarTab> {
                 ),
                 if (hasData) ...[
                   const SizedBox(height: 2),
-                  Container(
-                    width: 4,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: net >= 0 ? Colors.blue : AppTheme.accentRed,
-                      shape: BoxShape.circle,
-                    ),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: categoryLabels
+                        .map(
+                          (label) => Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 1),
+                            child: Container(
+                              width: 4,
+                              height: 4,
+                              decoration: BoxDecoration(
+                                color: _categoryColor(label),
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                          ),
+                        )
+                        .toList(),
                   ),
                   Text(
                     net.abs() >= 1000
@@ -166,6 +182,45 @@ class _CalendarTabState extends State<CalendarTab> {
         );
       },
     );
+  }
+
+  static const _categoryColors = {
+    // Income
+    'Salary': Color(0xFFFFC107),
+    'Bonus': Color(0xFFEF5350),
+    'Refund': Color(0xFF66BB6A),
+    'Interest': Colors.white,
+    'Other Income': Color(0xFF616161),
+    // Expense
+    'Food': Color(0xFFFFA726),
+    'Transportation': Color(0xFFE53935),
+    'Utilities': Color(0xFFFFEE58),
+    'Entertainment': Color(0xFF7E57C2),
+    'Shopping': Color(0xFFEC407A),
+    'Healthcare': Color(0xFF26A69A),
+    'Education': Color(0xFF42A5F5),
+    'Other Expense': Color(0xFF8D6E63),
+
+    'Transfer': Colors.purple,
+  };
+
+  static const _fallbackPalette = [
+    Color(0xFFFFA726),
+    Color(0xFF66BB6A),
+    Color(0xFF42A5F5),
+    Color(0xFFAB47BC),
+    Color(0xFFFFCA28),
+    Color(0xFF26C6DA),
+    Color(0xFFEC407A),
+    Color(0xFF8D6E63),
+  ];
+
+  Color _categoryColor(String categoryName) {
+    if (_categoryColors.containsKey(categoryName)) {
+      return _categoryColors[categoryName]!;
+    }
+    final index = categoryName.hashCode.abs() % _fallbackPalette.length;
+    return _fallbackPalette[index];
   }
 
   Widget _buildSelectedDayList(Map<DateTime, List<Transaction>> grouped) {
