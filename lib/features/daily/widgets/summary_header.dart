@@ -16,6 +16,12 @@ class SummaryHeader extends StatelessWidget {
         final expense = provider.totalExpense(month);
         final total = provider.netTotal(month);
 
+        final previousMonth = DateTime(month.year, month.month - 1);
+        final previousTotal = provider.netTotal(previousMonth);
+        final double? percentChange = previousTotal != 0
+            ? ((total - previousTotal) / previousTotal.abs()) * 100
+            : null;
+
         return Container(
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
           decoration: BoxDecoration(
@@ -40,6 +46,7 @@ class SummaryHeader extends StatelessWidget {
                 label: 'Total',
                 value: total,
                 color: AppTheme.textPrimary,
+                percentChange: percentChange,
               ),
             ],
           ),
@@ -53,11 +60,13 @@ class _SummaryItem extends StatelessWidget {
   final String label;
   final double value;
   final Color color;
+  final double? percentChange;
 
   const _SummaryItem({
     required this.label,
     required this.value,
     required this.color,
+    this.percentChange,
   });
 
   @override
@@ -77,6 +86,26 @@ class _SummaryItem extends StatelessWidget {
             fontWeight: FontWeight.bold,
           ),
         ),
+        if (percentChange != null) ...[
+          const SizedBox(height: 2),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                percentChange! >= 0 ? Icons.arrow_upward : Icons.arrow_downward,
+                size: 10,
+                color: percentChange! >= 0 ? Colors.green : AppTheme.accentRed,
+              ),
+              Text(
+                '${percentChange!.abs().toStringAsFixed(0)}% vs last month',
+                style: TextStyle(
+                  fontSize: 9,
+                  color: percentChange! >= 0 ? Colors.green : AppTheme.accentRed,
+                ),
+              ),
+            ],
+          ),
+        ],
       ],
     );
   }
