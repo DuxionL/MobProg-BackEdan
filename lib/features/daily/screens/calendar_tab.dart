@@ -10,8 +10,14 @@ import '../../../models/transaction.dart';
 class CalendarTab extends StatefulWidget {
   final DateTime month;
   final VoidCallback? onJumpToToday;
+  final Set<String> selectedCategories;
 
-  const CalendarTab({super.key, required this.month, this.onJumpToToday});
+  const CalendarTab({
+    super.key,
+    required this.month,
+    this.onJumpToToday,
+    this.selectedCategories = const {},
+  });
 
   @override
   State<CalendarTab> createState() => _CalendarTabState();
@@ -27,12 +33,27 @@ class _CalendarTabState extends State<CalendarTab> {
     widget.onJumpToToday?.call();
   }
 
+  Map<DateTime, List<Transaction>> _applyFilter(
+    Map<DateTime, List<Transaction>> grouped,
+  ) {
+    if (widget.selectedCategories.isEmpty) return grouped;
+
+    final filtered = <DateTime, List<Transaction>>{};
+    for (final entry in grouped.entries) {
+      final matches = entry.value
+          .where((t) => widget.selectedCategories.contains(t.category?.name))
+          .toList();
+      if (matches.isNotEmpty) filtered[entry.key] = matches;
+    }
+    return filtered;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<TransactionProvider>(
       builder: (context, provider, _) {
         final Map<DateTime, List<Transaction>> grouped =
-            provider.groupedByDay(widget.month);
+            _applyFilter(provider.groupedByDay(widget.month));
         final days = _buildMonthGrid(widget.month);
 
         return Column(
@@ -111,8 +132,6 @@ class _CalendarTabState extends State<CalendarTab> {
           net += (t.type == TransactionType.expense) ? -t.amount : t.amount;
         }
 
-        // Unique categories present that day, capped at 3 dots so it
-        // doesn't overflow a small calendar cell.
         final categoryLabels = transactions
             .map((t) => t.category?.name ?? 'Transfer')
             .toSet()

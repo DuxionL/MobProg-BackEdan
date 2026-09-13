@@ -1,24 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../transaction/transaction_provider.dart';
+import '../../../models/transaction.dart';
 import '../widgets/summary_header.dart';
 import '../widgets/transaction_list_item.dart';
 import '../widgets/empty_state_widget.dart';
 import '../../../theme/theme.dart';
 
-/// "Daily" tab — shows the active month's summary + transactions
-/// grouped by date. The active month is controlled externally (HomePage)
-/// so it stays in sync with the month navigation arrows in CustomAppBar.
 class DailyTab extends StatelessWidget {
   final DateTime month;
+  final Set<String> selectedCategories;
 
-  const DailyTab({super.key, required this.month});
+  const DailyTab({
+    super.key,
+    required this.month,
+    this.selectedCategories = const {},
+  });
 
   @override
   Widget build(BuildContext context) {
     return Consumer<TransactionProvider>(
       builder: (context, provider, _) {
-        final grouped = provider.groupedByDay(month);
+        final grouped = _applyFilter(provider.groupedByDay(month));
 
         return Column(
           children: [
@@ -29,7 +32,7 @@ class DailyTab extends StatelessWidget {
                 child: grouped.isEmpty
                     ? const EmptyStateWidget(key: ValueKey('empty'))
                     : ListView(
-                        key: ValueKey(month),
+                        key: ValueKey('$month-${selectedCategories.length}'),
                         padding: const EdgeInsets.only(bottom: 80),
                         children: grouped.entries.map((entry) {
                           final day = entry.key;
@@ -61,6 +64,21 @@ class DailyTab extends StatelessWidget {
         );
       },
     );
+  }
+
+  Map<DateTime, List<Transaction>> _applyFilter(
+    Map<DateTime, List<Transaction>> grouped,
+  ) {
+    if (selectedCategories.isEmpty) return grouped;
+
+    final filtered = <DateTime, List<Transaction>>{};
+    for (final entry in grouped.entries) {
+      final matches = entry.value
+          .where((t) => selectedCategories.contains(t.category?.name))
+          .toList();
+      if (matches.isNotEmpty) filtered[entry.key] = matches;
+    }
+    return filtered;
   }
 
   String _formatDayHeader(DateTime day) {

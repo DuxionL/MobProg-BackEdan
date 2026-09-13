@@ -6,8 +6,14 @@ import 'package:money_manager/theme/theme.dart';
 class TabBarWrapper extends StatelessWidget {
   final DateTime month;
   final VoidCallback? onJumpToToday;
+  final Set<String> selectedCategories;
 
-  const TabBarWrapper({super.key, required this.month, this.onJumpToToday});
+  const TabBarWrapper({
+    super.key,
+    required this.month,
+    this.onJumpToToday,
+    this.selectedCategories = const {},
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -32,8 +38,12 @@ class TabBarWrapper extends StatelessWidget {
           Expanded(
             child: TabBarView(
               children: [
-                DailyTab(month: month),
-                CalendarTab(month: month, onJumpToToday: onJumpToToday),
+                DailyTab(month: month, selectedCategories: selectedCategories),
+                CalendarTab(
+                  month: month,
+                  onJumpToToday: onJumpToToday,
+                  selectedCategories: selectedCategories,
+                ),
                 const Center(child: Text('Monthly Tab')),
                 const Center(child: Text('Total Tab')),
                 const Center(child: Text('Note Tab')),

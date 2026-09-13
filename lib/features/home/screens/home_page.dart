@@ -5,6 +5,7 @@ import '../widgets/bottom_nav_bar.dart';
 import '../../asset/asset_page.dart';
 import '../../settings/settings_page.dart';
 import '../../daily/screens/tab_bar_wrapper.dart';
+import '../../daily/widgets/category_filter_dialog.dart';
 import '../widgets/fab_button.dart';
 import '../widgets/month_picker_dialog.dart';
 import '../../../theme/theme.dart';
@@ -20,6 +21,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
   DateTime _currentMonth = DateTime.now();
+  Set<String> _selectedCategories = {};
 
   String get _monthLabel {
     const months = [
@@ -63,11 +65,19 @@ class _HomePageState extends State<HomePage> {
     return result ?? false;
   }
 
+  Future<void> _openFilterDialog() async {
+    final result = await CategoryFilterDialog.show(context, _selectedCategories);
+    if (result != null) {
+      setState(() => _selectedCategories = result);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final pages = [
       TabBarWrapper(
         month: _currentMonth,
+        selectedCategories: _selectedCategories,
         onJumpToToday: () {
           setState(() => _currentMonth = DateTime.now());
         },
@@ -107,6 +117,7 @@ class _HomePageState extends State<HomePage> {
             }
           },
           onSearchTap: () {},
+          onFilterTap: _openFilterDialog,
         ),
         body: AnimatedSwitcher(
           duration: const Duration(milliseconds: 250),
