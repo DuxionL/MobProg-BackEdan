@@ -5,7 +5,7 @@ import '../widgets/bottom_nav_bar.dart';
 import '../../asset/asset_page.dart';
 import '../../settings/settings_page.dart';
 import '../../daily/screens/tab_bar_wrapper.dart';
-import '../../daily/widgets/category_filter_dialog.dart';
+import '../../daily/widgets/category_filter_page.dart';
 import '../widgets/fab_button.dart';
 import '../widgets/month_picker_dialog.dart';
 import '../../../theme/theme.dart';
@@ -66,7 +66,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _openFilterDialog() async {
-    final result = await CategoryFilterDialog.show(context, _selectedCategories);
+    final result = await CategoryFilterPage.show(context, _selectedCategories);
     if (result != null) {
       setState(() => _selectedCategories = result);
     }
