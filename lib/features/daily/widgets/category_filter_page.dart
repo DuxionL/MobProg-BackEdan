@@ -121,10 +121,34 @@ class _CategoryFilterPageState extends State<CategoryFilterPage>
   }
 
   Widget _buildCategoryList(List categories) {
+    final allNames = categories.map((c) => c.name as String).toSet();
+    final allChecked = allNames.isNotEmpty &&
+        allNames.every((name) => _selectedCategories.contains(name));
+
     return ListView.builder(
-      itemCount: categories.length,
+      itemCount: categories.length + 1,
       itemBuilder: (context, index) {
-        final category = categories[index];
+        if (index == 0) {
+          return CheckboxListTile(
+            value: allChecked,
+            activeColor: AppTheme.accentRed,
+            title: Text(
+              'All',
+              style: TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.bold),
+            ),
+            onChanged: (checked) {
+              setState(() {
+                if (checked == true) {
+                  _selectedCategories.addAll(allNames);
+                } else {
+                  _selectedCategories.removeAll(allNames);
+                }
+              });
+            },
+          );
+        }
+
+        final category = categories[index - 1];
         final isChecked = _selectedCategories.contains(category.name);
         return CheckboxListTile(
           value: isChecked,
@@ -148,10 +172,34 @@ class _CategoryFilterPageState extends State<CategoryFilterPage>
   }
 
   Widget _buildAccountList(List accounts) {
+    final allNames = accounts.map((a) => a.name as String).toSet();
+    final allChecked = allNames.isNotEmpty &&
+        allNames.every((name) => _selectedAccounts.contains(name));
+
     return ListView.builder(
-      itemCount: accounts.length,
+      itemCount: accounts.length + 1,
       itemBuilder: (context, index) {
-        final account = accounts[index];
+        if (index == 0) {
+          return CheckboxListTile(
+            value: allChecked,
+            activeColor: AppTheme.accentRed,
+            title: Text(
+              'All',
+              style: TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.bold),
+            ),
+            onChanged: (checked) {
+              setState(() {
+                if (checked == true) {
+                  _selectedAccounts.addAll(allNames);
+                } else {
+                  _selectedAccounts.removeAll(allNames);
+                }
+              });
+            },
+          );
+        }
+
+        final account = accounts[index - 1];
         final isChecked = _selectedAccounts.contains(account.name);
         return CheckboxListTile(
           value: isChecked,
