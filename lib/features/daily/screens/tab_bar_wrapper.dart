@@ -7,12 +7,14 @@ class TabBarWrapper extends StatelessWidget {
   final DateTime month;
   final VoidCallback? onJumpToToday;
   final Set<String> selectedCategories;
+  final Set<String> selectedAccounts;
 
   const TabBarWrapper({
     super.key,
     required this.month,
     this.onJumpToToday,
     this.selectedCategories = const {},
+    this.selectedAccounts = const {},
   });
 
   @override
@@ -38,11 +40,16 @@ class TabBarWrapper extends StatelessWidget {
           Expanded(
             child: TabBarView(
               children: [
-                DailyTab(month: month, selectedCategories: selectedCategories),
+                DailyTab(
+                  month: month,
+                  selectedCategories: selectedCategories,
+                  selectedAccounts: selectedAccounts,
+                ),
                 CalendarTab(
                   month: month,
                   onJumpToToday: onJumpToToday,
                   selectedCategories: selectedCategories,
+                  selectedAccounts: selectedAccounts,
                 ),
                 const Center(child: Text('Monthly Tab')),
                 const Center(child: Text('Total Tab')),

@@ -21,7 +21,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
   DateTime _currentMonth = DateTime.now();
-  Set<String> _selectedCategories = {};
+  FilterSelection _filter = const FilterSelection();
 
   String get _monthLabel {
     const months = [
@@ -66,9 +66,9 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _openFilterDialog() async {
-    final result = await CategoryFilterPage.show(context, _selectedCategories);
+    final result = await CategoryFilterPage.show(context, _filter);
     if (result != null) {
-      setState(() => _selectedCategories = result);
+      setState(() => _filter = result);
     }
   }
 
@@ -77,7 +77,8 @@ class _HomePageState extends State<HomePage> {
     final pages = [
       TabBarWrapper(
         month: _currentMonth,
-        selectedCategories: _selectedCategories,
+        selectedCategories: _filter.categories,
+        selectedAccounts: _filter.accounts,
         onJumpToToday: () {
           setState(() => _currentMonth = DateTime.now());
         },

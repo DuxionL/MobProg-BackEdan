@@ -11,12 +11,14 @@ class CalendarTab extends StatefulWidget {
   final DateTime month;
   final VoidCallback? onJumpToToday;
   final Set<String> selectedCategories;
+  final Set<String> selectedAccounts;
 
   const CalendarTab({
     super.key,
     required this.month,
     this.onJumpToToday,
     this.selectedCategories = const {},
+    this.selectedAccounts = const {},
   });
 
   @override
@@ -33,16 +35,26 @@ class _CalendarTabState extends State<CalendarTab> {
     widget.onJumpToToday?.call();
   }
 
+  bool _matches(Transaction t) {
+    final categoryOk = widget.selectedCategories.isEmpty ||
+        widget.selectedCategories.contains(t.category?.name);
+    final accountOk = widget.selectedAccounts.isEmpty ||
+        widget.selectedAccounts.contains(t.account?.name) ||
+        widget.selectedAccounts.contains(t.fromAccount?.name) ||
+        widget.selectedAccounts.contains(t.toAccount?.name);
+    return categoryOk && accountOk;
+  }
+
   Map<DateTime, List<Transaction>> _applyFilter(
     Map<DateTime, List<Transaction>> grouped,
   ) {
-    if (widget.selectedCategories.isEmpty) return grouped;
+    if (widget.selectedCategories.isEmpty && widget.selectedAccounts.isEmpty) {
+      return grouped;
+    }
 
     final filtered = <DateTime, List<Transaction>>{};
     for (final entry in grouped.entries) {
-      final matches = entry.value
-          .where((t) => widget.selectedCategories.contains(t.category?.name))
-          .toList();
+      final matches = entry.value.where(_matches).toList();
       if (matches.isNotEmpty) filtered[entry.key] = matches;
     }
     return filtered;
@@ -132,6 +144,8 @@ class _CalendarTabState extends State<CalendarTab> {
           net += (t.type == TransactionType.expense) ? -t.amount : t.amount;
         }
 
+        // Unique categories present that day, capped at 3 dots so it
+        // doesn't overflow a small calendar cell.
         final categoryLabels = transactions
             .map((t) => t.category?.name ?? 'Transfer')
             .toSet()
@@ -201,6 +215,10 @@ class _CalendarTabState extends State<CalendarTab> {
     );
   }
 
+  /// Curated colors matching each default category's emoji tone (e.g. Food
+  /// 🍔 → orange, Transportation 🚗 → red). Falls back to a hashed palette
+  /// for any category not in this list, so custom/future categories still
+  /// get a consistent color without breaking.
   static const _categoryColors = {
     // Income
     'Salary': Color(0xFFFFC107),
@@ -217,7 +235,8 @@ class _CalendarTabState extends State<CalendarTab> {
     'Healthcare': Color(0xFF26A69A),
     'Education': Color(0xFF42A5F5),
     'Other Expense': Color(0xFF8D6E63),
-  
+    // Transfer (no category on the model) — matches the purple already
+    // used for transfer transactions via Transaction.color elsewhere.
     'Transfer': Colors.purple,
   };
 
