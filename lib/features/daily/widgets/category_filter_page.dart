@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../transaction/transaction_provider.dart';
+import '../../../models/transaction.dart';
 import '../../../theme/theme.dart';
 
+/// Result of the filter page — both category and account selections.
+/// Empty sets mean "no filter on that dimension" (show all).
 class FilterSelection {
   final Set<String> categories;
   final Set<String> accounts;
@@ -94,7 +97,7 @@ class _CategoryFilterPageState extends State<CategoryFilterPage>
         children: [
           _buildCategoryList(provider.incomeCategories),
           _buildCategoryList(provider.expenseCategories),
-          _buildAccountList(provider.accounts),
+          _buildAccountList(provider.accounts, provider),
         ],
       ),
       bottomNavigationBar: SafeArea(
@@ -171,51 +174,164 @@ class _CategoryFilterPageState extends State<CategoryFilterPage>
     );
   }
 
-  Widget _buildAccountList(List accounts) {
+  Widget _buildAccountList(List accounts, TransactionProvider provider) {
     final allNames = accounts.map((a) => a.name as String).toSet();
     final allChecked = allNames.isNotEmpty &&
         allNames.every((name) => _selectedAccounts.contains(name));
 
-    return ListView.builder(
-      itemCount: accounts.length + 1,
-      itemBuilder: (context, index) {
-        if (index == 0) {
-          return CheckboxListTile(
-            value: allChecked,
-            activeColor: AppTheme.accentRed,
-            title: Text(
-              'All',
-              style: TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.bold),
-            ),
-            onChanged: (checked) {
-              setState(() {
-                if (checked == true) {
-                  _selectedAccounts.addAll(allNames);
-                } else {
-                  _selectedAccounts.removeAll(allNames);
-                }
-              });
-            },
-          );
-        }
-
-        final account = accounts[index - 1];
-        final isChecked = _selectedAccounts.contains(account.name);
-        return CheckboxListTile(
-          value: isChecked,
-          activeColor: AppTheme.accentRed,
-          title: Text(account.name, style: TextStyle(color: AppTheme.textPrimary)),
-          onChanged: (checked) {
-            setState(() {
-              if (checked == true) {
-                _selectedAccounts.add(account.name);
-              } else {
-                _selectedAccounts.remove(account.name);
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              SizedBox(
+                width: 90,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text('Income', style: TextStyle(color: Colors.blue, fontSize: 12)),
+                    Text(
+                      'Transfer-In',
+                      style: TextStyle(color: Colors.blue.withOpacity(0.6), fontSize: 10),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 12),
+              SizedBox(
+                width: 90,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text('Expenses', style: TextStyle(color: AppTheme.accentRed, fontSize: 12)),
+                    Text(
+                      'Transfer-Out',
+                      style: TextStyle(color: AppTheme.accentRed.withOpacity(0.6), fontSize: 10),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: ListView.builder(
+            itemCount: accounts.length + 1,
+            itemBuilder: (context, index) {
+              if (index == 0) {
+                return CheckboxListTile(
+                  value: allChecked,
+                  activeColor: AppTheme.accentRed,
+                  title: Text(
+                    'All',
+                    style: TextStyle(
+                      color: AppTheme.textPrimary,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  onChanged: (checked) {
+                    setState(() {
+                      if (checked == true) {
+                        _selectedAccounts.addAll(allNames);
+                      } else {
+                        _selectedAccounts.removeAll(allNames);
+                      }
+                    });
+                  },
+                );
               }
-            });
-          },
-        );
-      },
+
+              final account = accounts[index - 1];
+              final isChecked = _selectedAccounts.contains(account.name);
+              final income = _accountTotal(provider, account.name, TransactionType.income);
+              final expense = _accountTotal(provider, account.name, TransactionType.expense);
+              final transferIn = _accountTransferTotal(provider, account.name, incoming: true);
+              final transferOut = _accountTransferTotal(provider, account.name, incoming: false);
+
+              return CheckboxListTile(
+                value: isChecked,
+                activeColor: AppTheme.accentRed,
+                title: Text(account.name, style: TextStyle(color: AppTheme.textPrimary)),
+                subtitle: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    SizedBox(
+                      width: 90,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            income.toStringAsFixed(2),
+                            style: TextStyle(color: Colors.blue, fontSize: 12),
+                          ),
+                          Text(
+                            transferIn.toStringAsFixed(2),
+                            style: TextStyle(color: Colors.blue.withOpacity(0.6), fontSize: 10),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    SizedBox(
+                      width: 90,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            expense.toStringAsFixed(2),
+                            style: TextStyle(color: AppTheme.accentRed, fontSize: 12),
+                          ),
+                          Text(
+                            transferOut.toStringAsFixed(2),
+                            style: TextStyle(color: AppTheme.accentRed.withOpacity(0.6), fontSize: 10),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                onChanged: (checked) {
+                  setState(() {
+                    if (checked == true) {
+                      _selectedAccounts.add(account.name);
+                    } else {
+                      _selectedAccounts.remove(account.name);
+                    }
+                  });
+                },
+              );
+            },
+          ),
+        ),
+      ],
     );
+  }
+
+  double _accountTotal(
+    TransactionProvider provider,
+    String accountName,
+    TransactionType type,
+  ) {
+    return provider.all
+        .where((t) => t.type == type && t.account?.name == accountName)
+        .fold(0.0, (sum, t) => sum + t.amount);
+  }
+
+  /// Sums transfer transactions into (incoming=true) or out of
+  /// (incoming=false) the given account.
+  double _accountTransferTotal(
+    TransactionProvider provider,
+    String accountName, {
+    required bool incoming,
+  }) {
+    return provider.all
+        .where((t) =>
+            t.type == TransactionType.transfer &&
+            (incoming
+                ? t.toAccount?.name == accountName
+                : t.fromAccount?.name == accountName))
+        .fold(0.0, (sum, t) => sum + t.amount);
   }
 }
