@@ -1,8 +1,10 @@
 import 'package:flutter/foundation.dart' hide Category;
 import 'package:money_manager/models/transaction.dart';
+import 'package:money_manager/core/database/transaction_repository.dart';
 
 //hell in the form of code
 class TransactionProvider extends ChangeNotifier {
+  final TransactionRepository _repository = TransactionRepository();
   final List<Transaction> _transactions = [];
   final List<Account> accounts = List.of(Account.defaultAccounts);
   final List<Category> incomeCategories = List.of(
@@ -11,10 +13,22 @@ class TransactionProvider extends ChangeNotifier {
   final List<Category> expenseCategories = List.of(
     Category.defaultExpenseCategories,
   );
+  TransactionProvider() {
+    loadTransactions();
+  }
 
   List<Transaction> get all => List.unmodifiable(_transactions);
 
-  void addTransaction(Transaction t) {
+  Future<void> loadTransactions() async {
+    final data = await _repository.getAllTransactions();
+    _transactions
+      ..clear()
+      ..addAll(data);
+    notifyListeners();
+  }
+
+  Future<void> addTransaction(Transaction t) async {
+    await _repository.insertTransaction(t);
     _transactions.add(t);
     _transactions.sort((a, b) {
       final dateComparison = b.dateTime.compareTo(a.dateTime);
@@ -25,7 +39,8 @@ class TransactionProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void removeTransaction(String id) {
+  Future<void> removeTransaction(String id) async {
+    await _repository.deleteTransaction(id);
     _transactions.removeWhere((t) => t.id == id);
     notifyListeners();
   }
