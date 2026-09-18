@@ -10,6 +10,7 @@ import '../widgets/fab_button.dart';
 import '../widgets/month_picker_dialog.dart';
 import '../../../theme/theme.dart';
 import 'package:flutter/services.dart';
+import '../../statistic/screens/statistic_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -83,7 +84,7 @@ class _HomePageState extends State<HomePage> {
           setState(() => _currentMonth = DateTime.now());
         },
       ),
-      const Center(child: Text('Statistics Tab')),
+      const StatisticPage(),
       const AssetPage(),
       const SettingsPage(),
     ];
