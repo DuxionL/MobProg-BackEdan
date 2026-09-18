@@ -7,12 +7,6 @@ import '../widgets/transaction_list_item.dart';
 import '../widgets/empty_state_widget.dart';
 import '../../../theme/theme.dart';
 
-/// "Daily" tab — shows the active month's summary + transactions
-/// grouped by date. The active month is controlled externally (HomePage)
-/// so it stays in sync with the month navigation arrows in CustomAppBar.
-/// `selectedCategories` and `selectedAccounts` (empty = no filter on
-/// that dimension) narrow down which transactions are shown, driven by
-/// the AppBar's filter icon.
 class DailyTab extends StatelessWidget {
   final DateTime month;
   final Set<String> selectedCategories;
