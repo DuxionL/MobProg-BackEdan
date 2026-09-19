@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 enum TransactionType { income, expense, transfer }
 
+enum AccountType { cash, bank, card }
+
 extension TransactionTypeExtension on TransactionType {
   String get label {
     switch (this) {
@@ -46,13 +48,19 @@ class Account {
   final String id;
   final String name;
   final double balance;
+  final AccountType type;
 
-  Account({required this.id, required this.name, required this.balance});
+  Account({
+    required this.id,
+    required this.name,
+    required this.balance,
+    required this.type,
+  });
 
   static final List<Account> defaultAccounts = [
-    Account(id: '1', name: 'Cash', balance: 0),
-    Account(id: '2', name: 'Bank Account', balance: 0),
-    Account(id: '3', name: 'Credit Card', balance: 0),
+    Account(id: '1', name: 'Cash', balance: 0, type: AccountType.cash),
+    Account(id: '2', name: 'Bank Account', balance: 0, type: AccountType.bank),
+    Account(id: '3', name: 'Credit Card', balance: 0, type: AccountType.card),
   ];
 }
 
@@ -83,6 +91,7 @@ class Transaction {
     this.fee,
   });
 
+  //warnain transaksi, masukan biru, keluaran merah, transfer ungu, tergantung selera lh
   Color get color {
     if (type == TransactionType.income) return Colors.blue;
     if (type == TransactionType.expense) return Colors.red;
@@ -103,14 +112,17 @@ class Transaction {
       'accountId': account?.id,
       'accountName': account?.name,
       'accountBalance': account?.balance,
+      'accountType': account?.type.name,
 
       'fromAccountId': fromAccount?.id,
       'fromAccountName': fromAccount?.name,
       'fromAccountBalance': fromAccount?.balance,
+      'fromAccountType': fromAccount?.type.name,
 
       'toAccountId': toAccount?.id,
       'toAccountName': toAccount?.name,
       'toAccountBalance': toAccount?.balance,
+      'toAccountType': toAccount?.type.name,
 
       'fee': fee,
     };
@@ -126,31 +138,49 @@ class Transaction {
       category: map['categoryName'] != null
           ? Category(
               name: map['categoryName'] as String,
-              emoji: map['categoryEmoji'] as String,
+              emoji: map['categoryEmoji'] as String? ?? '',
             )
           : null,
       account: map['accountId'] != null
           ? Account(
               id: map['accountId'] as String,
               name: map['accountName'] as String,
-              balance: (map['accountBalance'] as num).toDouble(),
+              balance: (map['accountBalance'] as num? ?? 0).toDouble(),
+              type: _accountTypeFromMap(map, 'account'),
             )
           : null,
       fromAccount: map['fromAccountId'] != null
           ? Account(
               id: map['fromAccountId'] as String,
               name: map['fromAccountName'] as String,
-              balance: (map['fromAccountBalance'] as num).toDouble(),
+              balance: (map['fromAccountBalance'] as num? ?? 0).toDouble(),
+              type: _accountTypeFromMap(map, 'fromAccount'),
             )
           : null,
       toAccount: map['toAccountId'] != null
           ? Account(
               id: map['toAccountId'] as String,
               name: map['toAccountName'] as String,
-              balance: (map['toAccountBalance'] as num).toDouble(),
+              balance: (map['toAccountBalance'] as num? ?? 0).toDouble(),
+              type: _accountTypeFromMap(map, 'toAccount'),
             )
           : null,
       fee: map['fee'] != null ? (map['fee'] as num).toDouble() : null,
     );
+  }
+
+  static AccountType _accountTypeFromMap(
+    Map<String, dynamic> map,
+    String prefix,
+  ) {
+    final storedType = map['${prefix}Type'] as String?;
+    for (final type in AccountType.values) {
+      if (type.name == storedType) return type;
+    }
+
+    final name = (map['${prefix}Name'] as String? ?? '').toLowerCase();
+    if (name.contains('cash')) return AccountType.cash;
+    if (name.contains('card')) return AccountType.card;
+    return AccountType.bank;
   }
 }
