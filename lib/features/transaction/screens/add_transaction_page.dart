@@ -65,7 +65,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
     return _category != null && _account != null;
   }
 
-  void _save() {
+  Future<void> _save() async {
     if (!_validate()) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Fill amount, category and account.')),
@@ -90,7 +90,8 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
       note: _noteController.text.isEmpty ? null : _noteController.text,
     );
 
-    provider.addTransaction(transaction);
+    await provider.addTransaction(transaction);
+    if (!mounted) return;
     Navigator.of(context).pop();
   }
 
