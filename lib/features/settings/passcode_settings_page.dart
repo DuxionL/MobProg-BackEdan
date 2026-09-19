@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'components/settings_grid.dart';
 import 'passcode_screen.dart';
+import '../../theme/theme.dart';
 
 String globalSelectedTimeout = "Immediately";
 bool globalIsBiometricsOn = true;
@@ -22,10 +23,10 @@ class _PasscodeSettingsPageState extends State<PasscodeSettingsPage> {
     "After 1 hour",
   ];
 
-  void _showTimeoutBottomSheet() {
+  void _showTimeoutBottomSheet(bool isDark) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF28282E),
+      backgroundColor: isDark ? const Color(0xFF28282E) : Colors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
@@ -42,26 +43,32 @@ class _PasscodeSettingsPageState extends State<PasscodeSettingsPage> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
+                    Text(
                       "Request Passcode",
                       style: TextStyle(
-                        color: Colors.white,
+                        color: isDark ? Colors.white : Colors.black,
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     InkWell(
                       onTap: () => Navigator.pop(context),
-                      child: const Icon(Icons.close, color: Colors.white),
+                      child: Icon(
+                        Icons.close,
+                        color: isDark ? Colors.white : Colors.black,
+                      ),
                     ),
                   ],
                 ),
               ),
-              Divider(color: Colors.grey.shade800, height: 1, thickness: 1),
+              Divider(
+                color: isDark ? Colors.grey.shade800 : Colors.grey.shade200,
+                height: 1,
+                thickness: 1,
+              ),
 
               ..._timeoutOptions.map((option) {
                 bool isSelected = globalSelectedTimeout == option;
-
                 return InkWell(
                   onTap: () {
                     setState(() {
@@ -83,22 +90,24 @@ class _PasscodeSettingsPageState extends State<PasscodeSettingsPage> {
                               option,
                               style: TextStyle(
                                 color: isSelected
-                                    ? Colors.red[300]
-                                    : Colors.white,
+                                    ? AppTheme.accentRed
+                                    : (isDark ? Colors.white : Colors.black),
                                 fontSize: 15,
                               ),
                             ),
                             if (isSelected)
-                              Icon(
+                              const Icon(
                                 Icons.check,
-                                color: Colors.red[300],
+                                color: AppTheme.accentRed,
                                 size: 20,
                               ),
                           ],
                         ),
                       ),
                       Divider(
-                        color: Colors.grey.shade800,
+                        color: isDark
+                            ? Colors.grey.shade800
+                            : Colors.grey.shade200,
                         height: 1,
                         thickness: 1,
                       ),
@@ -115,23 +124,27 @@ class _PasscodeSettingsPageState extends State<PasscodeSettingsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bgColor = isDark ? AppTheme.background : Colors.white;
+    final textColor = isDark ? AppTheme.textPrimary : AppTheme.textPrimaryLight;
+
     return ValueListenableBuilder<String?>(
       valueListenable: passcodeNotifier,
       builder: (context, passcodeValue, child) {
         bool isOn = passcodeValue != null;
 
         return Scaffold(
-          backgroundColor: const Color(0xFF1E1E24),
+          backgroundColor: bgColor,
           appBar: AppBar(
-            backgroundColor: const Color(0xFF1E1E24),
+            backgroundColor: bgColor,
             elevation: 0,
             leading: IconButton(
-              icon: const Icon(Icons.arrow_back, color: Colors.white),
+              icon: Icon(Icons.arrow_back, color: textColor),
               onPressed: () => Navigator.pop(context),
             ),
-            title: const Text(
+            title: Text(
               "Passcode",
-              style: TextStyle(color: Colors.white, fontSize: 18),
+              style: TextStyle(color: textColor, fontSize: 18),
             ),
           ),
           body: ListView(
@@ -161,8 +174,11 @@ class _PasscodeSettingsPageState extends State<PasscodeSettingsPage> {
                 },
                 child: _buildListItemRow(
                   isOn ? "Turn off Passcode" : "Turn on Passcode",
+                  textColor,
+                  isDark,
                 ),
               ),
+
               InkWell(
                 onTap: () {
                   if (isOn) {
@@ -175,7 +191,12 @@ class _PasscodeSettingsPageState extends State<PasscodeSettingsPage> {
                     );
                   }
                 },
-                child: _buildListItemRow("Change Passcode", isDisabled: !isOn),
+                child: _buildListItemRow(
+                  "Change Passcode",
+                  textColor,
+                  isDark,
+                  isDisabled: !isOn,
+                ),
               ),
 
               Padding(
@@ -186,30 +207,38 @@ class _PasscodeSettingsPageState extends State<PasscodeSettingsPage> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
+                    Text(
                       "Biometrics",
-                      style: TextStyle(color: Colors.white, fontSize: 15),
+                      style: TextStyle(color: textColor, fontSize: 15),
                     ),
                     Switch(
                       value: globalIsBiometricsOn,
                       activeColor: Colors.white,
-                      activeTrackColor: Colors.red[300],
-                      inactiveThumbColor: Colors.grey,
-                      inactiveTrackColor: Colors.grey.shade800,
+                      activeTrackColor: AppTheme.accentRed,
+                      inactiveThumbColor: isDark ? Colors.grey : Colors.white,
+                      inactiveTrackColor: isDark
+                          ? Colors.grey.shade800
+                          : Colors.grey.shade300,
                       onChanged: (value) =>
                           setState(() => globalIsBiometricsOn = value),
                     ),
                   ],
                 ),
               ),
-              Divider(color: Colors.grey.shade900, height: 1, thickness: 1),
+              Divider(
+                color: isDark ? Colors.grey.shade900 : Colors.grey.shade200,
+                height: 1,
+                thickness: 1,
+              ),
 
-              _buildSectionHeader("Request Passcode"),
+              _buildSectionHeader("Request Passcode", isDark),
 
               InkWell(
-                onTap: _showTimeoutBottomSheet,
+                onTap: () => _showTimeoutBottomSheet(isDark),
                 child: _buildListItemRow(
                   "Request Passcode",
+                  textColor,
+                  isDark,
                   value: globalSelectedTimeout,
                 ),
               ),
@@ -220,20 +249,26 @@ class _PasscodeSettingsPageState extends State<PasscodeSettingsPage> {
     );
   }
 
-  Widget _buildSectionHeader(String title) {
+  Widget _buildSectionHeader(String title, bool isDark) {
     return Container(
       width: double.infinity,
-      color: const Color(0xFF151518),
+      color: isDark ? const Color(0xFF151518) : Colors.grey.shade50,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Text(
         title,
-        style: const TextStyle(color: Colors.grey, fontSize: 13),
+        style: const TextStyle(
+          color: Colors.grey,
+          fontSize: 13,
+          fontWeight: FontWeight.normal,
+        ),
       ),
     );
   }
 
   Widget _buildListItemRow(
-    String title, {
+    String title,
+    Color textColor,
+    bool isDark, {
     String? value,
     bool isDisabled = false,
   }) {
@@ -247,19 +282,26 @@ class _PasscodeSettingsPageState extends State<PasscodeSettingsPage> {
               Text(
                 title,
                 style: TextStyle(
-                  color: isDisabled ? Colors.grey.shade700 : Colors.white,
+                  color: isDisabled ? Colors.grey.shade400 : textColor,
                   fontSize: 15,
                 ),
               ),
               if (value != null)
                 Text(
                   value,
-                  style: TextStyle(color: Colors.red[300], fontSize: 14),
+                  style: const TextStyle(
+                    color: AppTheme.accentRed,
+                    fontSize: 14,
+                  ),
                 ),
             ],
           ),
         ),
-        Divider(color: Colors.grey.shade900, height: 1, thickness: 1),
+        Divider(
+          color: isDark ? Colors.grey.shade900 : Colors.grey.shade200,
+          height: 1,
+          thickness: 1,
+        ),
       ],
     );
   }

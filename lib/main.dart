@@ -16,12 +16,18 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (context) => TransactionProvider(),
-      child: MaterialApp(
-        title: 'Money Manager',
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.darkTheme,
-        themeMode: ThemeMode.dark,
-        home: const SplashScreen(),
+      child: ValueListenableBuilder<ThemeMode>(
+        valueListenable: themeNotifier,
+        builder: (context, currentMode, child) {
+          return MaterialApp(
+            title: 'Money Manager',
+            debugShowCheckedModeBanner: false,
+            theme: AppTheme.lightTheme,
+            darkTheme: AppTheme.darkTheme,
+            themeMode: currentMode,
+            home: const SplashScreen(),
+          );
+        },
       ),
     );
   }

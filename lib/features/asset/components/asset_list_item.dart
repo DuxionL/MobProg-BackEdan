@@ -2,15 +2,12 @@ import 'package:flutter/material.dart';
 
 class AssetListItem extends StatelessWidget {
   final String title;
-  final String titleAmount;
-  final Color titleAmountColor;
-  
+  final String? titleAmount;
+  final Color? titleAmountColor;
   final String itemLabel;
-  final String itemAmount;
-  final Color itemAmountColor;
-  
+  final String? itemAmount;
+  final Color? itemAmountColor;
   final bool isCard;
-
   final String? cardPayableAmount;
   final String? cardOutstAmount;
   final Color? cardOutstColor;
@@ -18,11 +15,11 @@ class AssetListItem extends StatelessWidget {
   const AssetListItem({
     super.key,
     required this.title,
-    this.titleAmount = "",
-    this.titleAmountColor = Colors.white,
+    this.titleAmount,
+    this.titleAmountColor,
     required this.itemLabel,
-    this.itemAmount = "",
-    this.itemAmountColor = Colors.white,
+    this.itemAmount,
+    this.itemAmountColor,
     this.isCard = false,
     this.cardPayableAmount,
     this.cardOutstAmount,
@@ -31,78 +28,90 @@ class AssetListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    final textColor = isDark ? Colors.white : Colors.black;
+    final headerBgColor = isDark
+        ? const Color(0xFF151518)
+        : Colors.grey.shade200;
+    final dividerColor = isDark ? Colors.grey.shade900 : Colors.grey.shade300;
+    final labelColor = isDark ? Colors.grey.shade400 : Colors.grey.shade600;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 10),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          color: headerBgColor,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(title, style: const TextStyle(color: Colors.white54, fontSize: 14)),
-              if (!isCard)
-                Text(titleAmount, style: TextStyle(color: titleAmountColor, fontSize: 14))
-              else
-                Row(
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        const Text("Balance Payable", style: TextStyle(color: Colors.white54, fontSize: 11)),
-                        const SizedBox(height: 2),
-                        Text(cardPayableAmount ?? "", style: const TextStyle(color: Colors.white54, fontSize: 14)),
-                      ],
-                    ),
-                    const SizedBox(width: 20),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        const Text("Outst. Balance", style: TextStyle(color: Colors.white54, fontSize: 11)),
-                        const SizedBox(height: 2),
-                        Text(cardOutstAmount ?? "", style: TextStyle(color: cardOutstColor, fontSize: 14)),
-                      ],
-                    ),
-                  ],
+              Text(
+                title,
+                style: TextStyle(
+                  color: textColor,
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              if (titleAmount != null)
+                Text(
+                  titleAmount!,
+                  style: TextStyle(color: titleAmountColor, fontSize: 14),
                 ),
             ],
           ),
         ),
-        Divider(color: Colors.grey.shade900, height: 1, thickness: 1),
-        
-        Padding(
+        Container(
+          color: Colors.transparent,
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(itemLabel, style: const TextStyle(color: Colors.white, fontSize: 15)),
-              if (!isCard)
-                Text(itemAmount, style: TextStyle(color: itemAmountColor, fontSize: 15))
-              else
+              Text(itemLabel, style: TextStyle(color: textColor, fontSize: 15)),
+              if (!isCard && itemAmount != null)
+                Text(
+                  itemAmount!,
+                  style: TextStyle(color: itemAmountColor, fontSize: 15),
+                ),
+              if (isCard)
                 Row(
                   children: [
-                    SizedBox(
-                      width: 80,
-                      child: Text(
-                        cardPayableAmount ?? "", 
-                        textAlign: TextAlign.right,
-                        style: const TextStyle(color: Colors.white, fontSize: 15)
-                      ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          "Balance Payable",
+                          style: TextStyle(color: labelColor, fontSize: 11),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          cardPayableAmount ?? "",
+                          style: TextStyle(color: textColor, fontSize: 14),
+                        ),
+                      ],
                     ),
                     const SizedBox(width: 20),
-                    SizedBox(
-                      width: 80,
-                      child: Text(
-                        cardOutstAmount ?? "", 
-                        textAlign: TextAlign.right,
-                        style: TextStyle(color: cardOutstColor, fontSize: 15)
-                      ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          "Outst. Balance",
+                          style: TextStyle(color: labelColor, fontSize: 11),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          cardOutstAmount ?? "",
+                          style: TextStyle(color: cardOutstColor, fontSize: 14),
+                        ),
+                      ],
                     ),
                   ],
                 ),
             ],
           ),
         ),
-        Divider(color: Colors.grey.shade900, height: 1, thickness: 1),
+        Divider(color: dividerColor, height: 1, thickness: 1),
       ],
     );
   }
