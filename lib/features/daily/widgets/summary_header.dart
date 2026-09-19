@@ -98,7 +98,9 @@ class _SummaryItem extends StatelessWidget {
                 '${percentChange!.abs().toStringAsFixed(0)}% vs last month',
                 style: TextStyle(
                   fontSize: 9,
-                  color: percentChange! >= 0 ? Colors.green : AppTheme.accentRed,
+                  color: percentChange! >= 0
+                      ? Colors.green
+                      : AppTheme.accentRed,
                 ),
               ),
             ],
