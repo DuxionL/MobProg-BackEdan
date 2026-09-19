@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import '../configuration_page.dart';
 import '../accounts_settings_page.dart';
 import '../passcode_screen.dart';
+import '../../../theme/theme.dart';
 
+final ValueNotifier<bool> isPasscodeOnNotifier = ValueNotifier<bool>(false);
 final ValueNotifier<String?> passcodeNotifier = ValueNotifier<String?>(null);
 
 class SettingsGrid extends StatelessWidget {
@@ -11,15 +13,23 @@ class SettingsGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? AppTheme.textPrimary : AppTheme.textPrimaryLight;
+
     return ValueListenableBuilder<String?>(
       valueListenable: passcodeNotifier,
       builder: (context, passcodeValue, child) {
-        bool isPasscodeOn = passcodeValue != null; 
+        bool isPasscodeOn = passcodeValue != null;
 
         final List<Map<String, dynamic>> menuItems = [
           {'icon': Icons.settings_outlined, 'label': 'Configuration'},
           {'icon': Icons.account_balance_wallet_outlined, 'label': 'Accounts'},
-          {'icon': isPasscodeOn ? Icons.lock_outline : Icons.lock_open_outlined, 'label': 'Passcode'},
+          {
+            'icon': isPasscodeOn
+                ? Icons.lock_outline
+                : Icons.lock_open_outlined,
+            'label': 'Passcode',
+          },
           {'icon': Icons.calculate_outlined, 'label': 'CalcBox'},
           {'icon': Icons.desktop_windows_outlined, 'label': 'PC Manager'},
           {'icon': Icons.restore, 'label': 'Backup'},
@@ -70,11 +80,11 @@ class SettingsGrid extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(menuItems[index]['icon'], color: Colors.white, size: 28),
+                  Icon(menuItems[index]['icon'], color: textColor, size: 28),
                   const SizedBox(height: 10),
                   Text(
                     menuItems[index]['label'],
-                    style: const TextStyle(color: Colors.white, fontSize: 12),
+                    style: TextStyle(color: textColor, fontSize: 12),
                   ),
                 ],
               ),

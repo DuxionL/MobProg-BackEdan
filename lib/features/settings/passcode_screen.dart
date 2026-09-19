@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'passcode_settings_page.dart';
 import 'components/settings_grid.dart';
+import '../../theme/theme.dart';
 
 enum PasscodeAction { create, authenticate, turnOff, change }
 
@@ -23,7 +24,6 @@ class _PasscodeScreenState extends State<PasscodeScreen> {
   String _enteredPin = "";
   String _firstPin = "";
   int _step = 0;
-
   bool _hasError = false;
   String _errorMessage = "";
 
@@ -47,8 +47,7 @@ class _PasscodeScreenState extends State<PasscodeScreen> {
   }
 
   void _onNumPressed(String num) {
-    if (_hasError)
-      setState(() => _hasError = false);
+    if (_hasError) setState(() => _hasError = false);
 
     if (_enteredPin.length < 4) {
       setState(() {
@@ -64,8 +63,7 @@ class _PasscodeScreenState extends State<PasscodeScreen> {
             } else {
               _triggerError("Wrong Passcode\nPlease try again.");
             }
-          }
-          else if (widget.action == PasscodeAction.authenticate) {
+          } else if (widget.action == PasscodeAction.authenticate) {
             if (_enteredPin == passcodeNotifier.value) {
               Navigator.pushReplacement(
                 context,
@@ -76,8 +74,7 @@ class _PasscodeScreenState extends State<PasscodeScreen> {
             } else {
               _triggerError("Wrong Passcode\nPlease try again.");
             }
-          }
-          else if (widget.action == PasscodeAction.create) {
+          } else if (widget.action == PasscodeAction.create) {
             if (_step == 1) {
               _firstPin = _enteredPin;
               setState(() {
@@ -104,8 +101,7 @@ class _PasscodeScreenState extends State<PasscodeScreen> {
                 _triggerError("Passcode does not match.\nPlease try again.");
               }
             }
-          }
-          else if (widget.action == PasscodeAction.change) {
+          } else if (widget.action == PasscodeAction.change) {
             if (_step == 0) {
               if (_enteredPin == passcodeNotifier.value) {
                 setState(() {
@@ -123,8 +119,7 @@ class _PasscodeScreenState extends State<PasscodeScreen> {
               });
             } else if (_step == 2) {
               if (_enteredPin == _firstPin) {
-                passcodeNotifier.value =
-                    _firstPin;
+                passcodeNotifier.value = _firstPin;
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
@@ -155,6 +150,10 @@ class _PasscodeScreenState extends State<PasscodeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bgColor = isDark ? AppTheme.background : AppTheme.accentRed;
+    const textColor = Colors.white;
+
     String appBarTitle = "";
     String mainTitle = "";
 
@@ -178,29 +177,29 @@ class _PasscodeScreenState extends State<PasscodeScreen> {
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xFF1E1E24),
+      backgroundColor: bgColor,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1E1E24),
+        backgroundColor: bgColor,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back, color: textColor),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           appBarTitle,
-          style: const TextStyle(color: Colors.white, fontSize: 18),
+          style: const TextStyle(color: textColor, fontSize: 18),
         ),
       ),
       body: SafeArea(
         child: Column(
           children: [
             const SizedBox(height: 40),
-            const Icon(Icons.savings, color: Colors.white, size: 48),
+            const Icon(Icons.savings, color: textColor, size: 48),
             const SizedBox(height: 24),
 
             Text(
               mainTitle,
-              style: const TextStyle(color: Colors.white, fontSize: 20),
+              style: const TextStyle(color: textColor, fontSize: 20),
             ),
             const SizedBox(height: 32),
 
@@ -215,12 +214,12 @@ class _PasscodeScreenState extends State<PasscodeScreen> {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     border: Border.all(
-                      color: _hasError ? Colors.transparent : Colors.white,
+                      color: _hasError ? Colors.transparent : textColor,
                       width: 1.5,
                     ),
                     color: _hasError
-                        ? Colors.red[400]
-                        : (isFilled ? Colors.white : Colors.transparent),
+                        ? (isDark ? Colors.red[400] : Colors.white70)
+                        : (isFilled ? textColor : Colors.transparent),
                   ),
                 );
               }),
@@ -231,10 +230,11 @@ class _PasscodeScreenState extends State<PasscodeScreen> {
               Text(
                 _errorMessage,
                 textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: isDark ? AppTheme.accentRed : Colors.white,
                   fontSize: 14,
                   height: 1.4,
+                  fontWeight: FontWeight.bold,
                 ),
               )
             else
@@ -263,7 +263,7 @@ class _PasscodeScreenState extends State<PasscodeScreen> {
                       child: const Center(
                         child: Icon(
                           Icons.backspace_outlined,
-                          color: Colors.white,
+                          color: textColor,
                           size: 28,
                         ),
                       ),
@@ -277,7 +277,7 @@ class _PasscodeScreenState extends State<PasscodeScreen> {
                       child: Text(
                         numText,
                         style: const TextStyle(
-                          color: Colors.white,
+                          color: textColor,
                           fontSize: 28,
                           fontWeight: FontWeight.w500,
                         ),

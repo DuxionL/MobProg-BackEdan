@@ -29,3 +29,5 @@ class AppTheme {
     );
   }
 }
+
+final ValueNotifier<ThemeMode> themeNotifier = ValueNotifier(ThemeMode.system);
