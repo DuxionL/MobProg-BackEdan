@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:money_manager/common/currency_formatter.dart';
 import 'package:money_manager/features/transaction/transaction_provider.dart';
 import 'package:money_manager/features/transaction/screens/add_transaction_page.dart';
 import 'package:money_manager/models/transaction.dart';
@@ -74,7 +75,7 @@ class TransactionListPage extends StatelessWidget {
                     ],
                   ),
                   trailing: Text(
-                    '${transaction.type == TransactionType.expense ? '-' : '+'}${transaction.amount}',
+                    '${transaction.type == TransactionType.expense ? '-' : '+'}${formatRupiah(transaction.amount)}',
                     style: TextStyle(
                       color: transaction.color,
                       fontWeight: FontWeight.bold,

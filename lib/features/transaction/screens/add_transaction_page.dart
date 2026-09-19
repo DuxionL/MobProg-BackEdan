@@ -139,7 +139,10 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
           TextField(
             controller: _amountController,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: const InputDecoration(labelText: 'Amount'),
+            decoration: const InputDecoration(
+              labelText: 'Amount',
+              prefixText: 'Rp ',
+            ),
           ),
           const SizedBox(height: 12),
 
@@ -196,7 +199,10 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
       TextField(
         controller: _feeController,
         keyboardType: const TextInputType.numberWithOptions(decimal: true),
-        decoration: const InputDecoration(labelText: 'Fee (optional)'),
+        decoration: const InputDecoration(
+          labelText: 'Fee (optional)',
+          prefixText: 'Rp ',
+        ),
       ),
       const SizedBox(height: 12),
       DropdownButtonFormField<Account>(

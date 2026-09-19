@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+import '../../../common/currency_formatter.dart';
 import '../../../models/transaction.dart';
 import '../../../theme/theme.dart';
 import '../../transaction/transaction_provider.dart';
@@ -32,7 +34,9 @@ class TransactionListItem extends StatelessWidget {
       confirmDismiss: (direction) => _confirmDelete(context),
       onDismissed: (direction) {
         if (transaction.id != null) {
-          context.read<TransactionProvider>().removeTransaction(transaction.id!);
+          context.read<TransactionProvider>().removeTransaction(
+            transaction.id!,
+          );
         }
       },
       child: Card(
@@ -61,7 +65,7 @@ class TransactionListItem extends StatelessWidget {
             ],
           ),
           trailing: Text(
-            '${transaction.type == TransactionType.expense ? '-' : '+'}${transaction.amount.toStringAsFixed(2)}',
+            '${transaction.type == TransactionType.expense ? '-' : '+'}${formatRupiah(transaction.amount)}',
             style: TextStyle(
               color: transaction.color,
               fontWeight: FontWeight.bold,

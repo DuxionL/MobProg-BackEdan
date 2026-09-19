@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+import '../../../common/currency_formatter.dart';
 import '../../transaction/transaction_provider.dart';
 import '../../../theme/theme.dart';
 
@@ -26,11 +28,7 @@ class SummaryHeader extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _SummaryItem(
-                label: 'Income',
-                value: income,
-                color: Colors.blue,
-              ),
+              _SummaryItem(label: 'Income', value: income, color: Colors.blue),
               _SummaryItem(
                 label: 'Expenses',
                 value: expense,
@@ -70,7 +68,7 @@ class _SummaryItem extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         Text(
-          value.toStringAsFixed(2),
+          formatRupiah(value),
           style: TextStyle(
             color: color,
             fontSize: 16,
