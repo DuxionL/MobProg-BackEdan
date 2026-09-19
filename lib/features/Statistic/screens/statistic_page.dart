@@ -6,6 +6,7 @@ import '../../transaction/transaction_provider.dart';
 
 import '../services/statistic_service.dart';
 import '../widgets/statistic_chart.dart';
+import '../widgets/statistic_header.dart';
 import '../widgets/statistic_header_button.dart';
 
 class StatisticPage extends StatefulWidget {
@@ -17,6 +18,8 @@ class StatisticPage extends StatefulWidget {
 
 class _StatisticPageState extends State<StatisticPage> {
   bool isIncome = true;
+
+  String selectedPeriod = "Monthly";
 
   final StatisticService statisticService = const StatisticService();
 
@@ -45,10 +48,32 @@ class _StatisticPageState extends State<StatisticPage> {
 
     return Column(
       children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 20,
+            vertical: 12,
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              StatisticHeader(
+                selectedPeriod: selectedPeriod,
+                onChanged: (value) {
+                  if (value == null) return;
+
+                  setState(() {
+                    selectedPeriod = value;
+                  });
+
+                  // Filtering logic later
+                },
+              ),
+            ],
+          ),
+        ),
 
         Row(
           children: [
-
             Expanded(
               child: StatisticHeaderButton(
                 title: "Income",
@@ -74,20 +99,16 @@ class _StatisticPageState extends State<StatisticPage> {
                 },
               ),
             ),
-
           ],
         ),
 
-        const Divider(
-          height: 1,
-        ),
+        const Divider(height: 1),
 
         Expanded(
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(20),
             child: Column(
               children: [
-
                 StatisticChart(
                   statistics: statistics,
                 ),
@@ -131,8 +152,9 @@ class _StatisticPageState extends State<StatisticPage> {
                             backgroundColor: item.color,
                             child: Text(
                               item.emoji,
-                              style:
-                                  const TextStyle(fontSize: 18),
+                              style: const TextStyle(
+                                fontSize: 18,
+                              ),
                             ),
                           ),
 
@@ -152,12 +174,10 @@ class _StatisticPageState extends State<StatisticPage> {
                       );
                     },
                   ),
-
               ],
             ),
           ),
         ),
-
       ],
     );
   }
