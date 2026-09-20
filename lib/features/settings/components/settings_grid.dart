@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:money_manager/features/settings/calculator/calculator_page.dart';
 
 import '../configuration_page.dart';
 import '../accounts_settings_page.dart';
@@ -73,6 +74,13 @@ class SettingsGrid extends StatelessWidget {
                             ? PasscodeAction.authenticate
                             : PasscodeAction.create,
                       ),
+                    ),
+                  );
+                } else if (menuItems[index]['label'] == 'CalcBox') {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const CalculatorPage(),
                     ),
                   );
                 }
