@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../../theme/theme.dart';
 
-class BottomNavBar extends StatelessWidget{
+class BottomNavBar extends StatelessWidget {
   final int selectedIndex;
   final ValueChanged<int> onTap;
 
@@ -10,21 +9,27 @@ class BottomNavBar extends StatelessWidget{
     required this.selectedIndex,
     required this.onTap,
   });
-  
+
   static const List<_NavItemData> _items = [
-    _NavItemData(icon : Icons.menu_book_outlined, label : 'Transactions'),
-    _NavItemData(icon : Icons.bar_chart_outlined, label: 'Statistics'),
-    _NavItemData(icon : Icons.paid_outlined, label : 'Accounts'),
-    _NavItemData(icon : Icons.more_horiz, label: 'More'),
+    _NavItemData(icon: Icons.menu_book_outlined, label: 'Transactions'),
+    _NavItemData(icon: Icons.bar_chart_outlined, label: 'Statistics'),
+    _NavItemData(icon: Icons.paid_outlined, label: 'Accounts'),
+    _NavItemData(icon: Icons.more_horiz, label: 'More'),
   ];
 
   @override
-  Widget build(BuildContext context){
+  Widget build(BuildContext context) {
+    final navTheme = Theme.of(context).bottomNavigationBarTheme;
+    final backgroundColor = navTheme.backgroundColor ?? Colors.white;
+    final selectedColor = navTheme.selectedItemColor ?? Colors.red;
+    final unselectedColor = navTheme.unselectedItemColor ?? Colors.grey;
+    final borderColor = Theme.of(context).dividerColor;
+
     return Container(
       decoration: BoxDecoration(
-        color: AppTheme.background,
+        color: backgroundColor,
         border: Border(
-          top: BorderSide(color: AppTheme.surface, width: 0.5),
+          top: BorderSide(color: borderColor, width: 0.5),
         ),
       ),
       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -32,12 +37,11 @@ class BottomNavBar extends StatelessWidget{
         top: false,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: List.generate(_items.length, (index){
+          children: List.generate(_items.length, (index) {
             final item = _items[index];
             final bool isSelected = selectedIndex == index;
-            final Color color =
-              isSelected ? AppTheme.accentRed : AppTheme.textSecondary;
-            
+            final Color color = isSelected ? selectedColor : unselectedColor;
+
             return InkWell(
               onTap: () => onTap(index),
               borderRadius: BorderRadius.circular(8),
@@ -56,8 +60,8 @@ class BottomNavBar extends StatelessWidget{
                       style: TextStyle(
                         color: color,
                         fontSize: 12,
-                        fontWeight: 
-                          isSelected ? FontWeight.w600 : FontWeight.normal,
+                        fontWeight:
+                            isSelected ? FontWeight.w600 : FontWeight.normal,
                       ),
                     ),
                   ],
@@ -71,9 +75,9 @@ class BottomNavBar extends StatelessWidget{
   }
 }
 
-  class _NavItemData {
-    final IconData icon;
-    final String label;
+class _NavItemData {
+  final IconData icon;
+  final String label;
 
-    const _NavItemData({required this.icon, required this.label});
-  }
+  const _NavItemData({required this.icon, required this.label});
+}
