@@ -18,6 +18,8 @@ class TransactionListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final textSecondary = Theme.of(context).textTheme.bodySmall!.color;
+
     return Dismissible(
       key: ValueKey(transaction.id ?? transaction.hashCode),
       direction: DismissDirection.endToStart,
@@ -40,7 +42,6 @@ class TransactionListItem extends StatelessWidget {
         }
       },
       child: Card(
-        color: AppTheme.surface,
         elevation: 0,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -55,12 +56,12 @@ class TransactionListItem extends StatelessWidget {
             children: [
               Text(
                 _formatTime(transaction.dateTime),
-                style: TextStyle(fontSize: 12, color: AppTheme.textSecondary),
+                style: TextStyle(fontSize: 12, color: textSecondary),
               ),
               if (transaction.note != null)
                 Text(
                   transaction.note!,
-                  style: TextStyle(fontSize: 11, color: AppTheme.textSecondary),
+                  style: TextStyle(fontSize: 11, color: textSecondary),
                 ),
             ],
           ),

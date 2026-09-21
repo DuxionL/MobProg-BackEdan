@@ -15,13 +15,8 @@ class AppTheme {
   static const Color surfaceLight = Color(0xFFFFFFFF);
   static const Color textPrimaryLight = Color(0xFF1A1D29);
 
-  // Pilihan warna aksen untuk halaman "Gaya" (mode terang)
   static const List<Color> accentColorOptions = [
-    Color(0xFFFF5B4E), // merah
-    Color(0xFFEC4899), // pink
-    Color(0xFF10B981), // hijau
-    Color(0xFF3B82F6), // biru
-    Color(0xFF374151), // gelap
+    Colors.white,
   ];
 
   static ThemeData get darkTheme {
@@ -35,7 +30,7 @@ class AppTheme {
         surface: surface,
       ),
       appBarTheme: const AppBarTheme(
-        backgroundColor: background, // dark mode: appbar tetap gelap
+        backgroundColor: background,
         elevation: 0,
         iconTheme: IconThemeData(color: textPrimary),
         titleTextStyle: TextStyle(
@@ -68,6 +63,10 @@ class AppTheme {
   }
 
   static ThemeData lightTheme(Color accentColor) {
+    final appBarBrightness = ThemeData.estimateBrightnessForColor(accentColor);
+    final onAccentColor =
+        appBarBrightness == Brightness.light ? textPrimaryLight : Colors.white;
+
     return ThemeData(
       brightness: Brightness.light,
       scaffoldBackgroundColor: backgroundLight,
@@ -80,21 +79,23 @@ class AppTheme {
       appBarTheme: AppBarTheme(
         backgroundColor: accentColor,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
-        titleTextStyle: const TextStyle(
-          color: Colors.white,
+        iconTheme: IconThemeData(color: onAccentColor),
+        titleTextStyle: TextStyle(
+          color: onAccentColor,
           fontSize: 20,
           fontWeight: FontWeight.w600,
         ),
       ),
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
         backgroundColor: surfaceLight,
-        selectedItemColor: accentColor,
+        selectedItemColor:
+            accentColor == Colors.white ? accentRedLight : accentColor,
         unselectedItemColor: textSecondaryLight,
         type: BottomNavigationBarType.fixed,
       ),
       floatingActionButtonTheme: FloatingActionButtonThemeData(
-        backgroundColor: accentColor,
+        backgroundColor:
+            accentColor == Colors.white ? accentRedLight : accentColor,
         foregroundColor: Colors.white,
       ),
       textTheme: TextTheme(
