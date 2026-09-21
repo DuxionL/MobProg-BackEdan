@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../../theme/theme.dart';
 
-class CustomAppBar extends StatelessWidget implements PreferredSizeWidget{
+class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String monthLabel;
   final VoidCallback? onPreviousMonth;
   final VoidCallback? onNextMonth;
@@ -23,45 +22,49 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget{
 
   @override
   Widget build(BuildContext context) {
+    final appBarTheme = Theme.of(context).appBarTheme;
+    final iconColor = appBarTheme.iconTheme?.color ?? Colors.white;
+    final titleColor = appBarTheme.titleTextStyle?.color ?? Colors.white;
+
     return AppBar(
-      backgroundColor: AppTheme.background,
+      backgroundColor: appBarTheme.backgroundColor,
       elevation: 0,
-      automaticallyImplyActions: false,
+      automaticallyImplyLeading: false,
       titleSpacing: 12,
       title: Row(
         children: [
           IconButton(
-            icon: const Icon(Icons.chevron_left, color: AppTheme.textPrimary),
+            icon: Icon(Icons.chevron_left, color: iconColor),
             onPressed: onPreviousMonth,
           ),
           GestureDetector(
             onTap: onMonthTap,
             child: Text(
-            monthLabel,
-            style: const TextStyle(
-              color: AppTheme.textPrimary,
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
+              monthLabel,
+              style: TextStyle(
+                color: titleColor,
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
-          ),
           IconButton(
-            icon: const Icon(Icons.chevron_right, color: AppTheme.textPrimary),
+            icon: Icon(Icons.chevron_right, color: iconColor),
             onPressed: onNextMonth,
           ),
         ],
       ),
       actions: [
         IconButton(
-          icon: const Icon(Icons.star_border, color: AppTheme.textPrimary),
+          icon: Icon(Icons.star_border, color: iconColor),
           onPressed: onFavoriteTap,
         ),
         IconButton(
-          icon: const Icon(Icons.search, color: AppTheme.textPrimary),
+          icon: Icon(Icons.search, color: iconColor),
           onPressed: onSearchTap,
         ),
         IconButton(
-          icon: Icon(Icons.tune, color: AppTheme.textPrimary),
+          icon: Icon(Icons.tune, color: iconColor),
           onPressed: onFilterTap,
         ),
       ],
@@ -70,5 +73,4 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget{
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
-  
 }
