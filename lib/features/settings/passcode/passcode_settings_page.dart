@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import 'components/settings_grid.dart';
+import '../components/settings_grid.dart';
 import 'passcode_screen.dart';
-import '../../theme/theme.dart';
+import '../../../theme/theme.dart';
 
 String globalSelectedTimeout = "Immediately";
 bool globalIsBiometricsOn = true;
