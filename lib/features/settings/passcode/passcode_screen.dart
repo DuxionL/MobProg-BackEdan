@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 import 'passcode_settings_page.dart';
-import 'components/settings_grid.dart';
-import '../../theme/theme.dart';
+import '../components/settings_grid.dart';
+import '../../../theme/theme.dart';
 
 enum PasscodeAction { create, authenticate, turnOff, change }
 
