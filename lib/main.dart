@@ -19,13 +19,18 @@ class MyApp extends StatelessWidget {
       child: ValueListenableBuilder<ThemeMode>(
         valueListenable: themeNotifier,
         builder: (context, currentMode, child) {
-          return MaterialApp(
-            title: 'Money Manager',
-            debugShowCheckedModeBanner: false,
-            theme: AppTheme.lightTheme,
-            darkTheme: AppTheme.darkTheme,
-            themeMode: currentMode,
-            home: const SplashScreen(),
+          return ValueListenableBuilder<Color>(
+            valueListenable: accentColorNotifier,
+            builder: (context, currentAccent, child) {
+              return MaterialApp(
+                title: 'Money Manager',
+                debugShowCheckedModeBanner: false,
+                theme: AppTheme.lightTheme(currentAccent),
+                darkTheme: AppTheme.darkTheme,
+                themeMode: currentMode,
+                home: const SplashScreen(),
+              );
+            },
           );
         },
       ),
