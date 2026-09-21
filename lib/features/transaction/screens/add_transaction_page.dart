@@ -111,17 +111,41 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
           Row(
             children: TransactionType.values.map((t) {
               return Expanded(
-                child: RadioListTile<TransactionType>(
-                  title: Text(t.label),
-                  value: t,
-                  groupValue: _type,
-                  onChanged: (v) => setState(() {
-                    _type = v!;
+                child: InkWell(
+                  onTap: () => setState(() {
+                    _type = t;
                     _category = null;
                     _account = null;
                     _fromAccount = null;
                     _toAccount = null;
                   }),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Radio<TransactionType>(
+                        value: t,
+                        groupValue: _type,
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        visualDensity: VisualDensity.compact,
+                        onChanged: (v) => setState(() {
+                          _type = v!;
+                          _category = null;
+                          _account = null;
+                          _fromAccount = null;
+                          _toAccount = null;
+                        }),
+                      ),
+                      const SizedBox(width: 4),
+                      Flexible(
+                        child: Text(
+                          t.label,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               );
             }).toList(),
