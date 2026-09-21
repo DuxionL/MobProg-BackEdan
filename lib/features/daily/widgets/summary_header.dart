@@ -12,6 +12,9 @@ class SummaryHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final textPrimary = Theme.of(context).textTheme.bodyLarge!.color;
+    final dividerColor = Theme.of(context).dividerColor;
+
     return Consumer<TransactionProvider>(
       builder: (context, provider, _) {
         final income = provider.totalIncome(month);
@@ -28,7 +31,7 @@ class SummaryHeader extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
           decoration: BoxDecoration(
             border: Border(
-              bottom: BorderSide(color: AppTheme.surface, width: 0.5),
+              bottom: BorderSide(color: dividerColor, width: 0.5),
             ),
           ),
           child: Row(
@@ -43,7 +46,7 @@ class SummaryHeader extends StatelessWidget {
               _SummaryItem(
                 label: 'Total',
                 value: total,
-                color: AppTheme.textPrimary,
+                color: textPrimary!,
                 percentChange: percentChange,
               ),
             ],
@@ -69,11 +72,13 @@ class _SummaryItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final textSecondary = Theme.of(context).textTheme.bodySmall!.color;
+
     return Column(
       children: [
         Text(
           label,
-          style: TextStyle(color: AppTheme.textSecondary, fontSize: 13),
+          style: TextStyle(color: textSecondary, fontSize: 13),
         ),
         const SizedBox(height: 4),
         Text(
