@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../theme/theme.dart';
 import 'style_page.dart';
+import 'income_category_page.dart';
 
 class ConfigurationPage extends StatefulWidget {
   const ConfigurationPage({super.key});
@@ -158,7 +159,14 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
             "Income Category Setting",
             textColor,
             isDark,
-            onTap: () {},
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const IncomeCategoryPage(),
+                ),
+              );
+            },
           ),
           _buildListItem(
             "Expenses Category Setting",
