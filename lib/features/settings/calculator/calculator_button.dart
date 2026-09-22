@@ -3,36 +3,48 @@ import 'package:flutter/material.dart';
 class CalculatorButton extends StatelessWidget {
   final String text;
   final VoidCallback onPressed;
-  final Color? color;
+  final Color color;
+  final int flex;
 
   const CalculatorButton({
     super.key,
     required this.text,
     required this.onPressed,
-    this.color,
+    required this.color,
+    this.flex = 1,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(6),
-      child: SizedBox(
-        width: double.infinity,
-        height: double.infinity,
-        child: ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: color ?? Colors.grey.shade800,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
+    return Expanded(
+      flex: flex,
+      child: Padding(
+        padding: const EdgeInsets.all(6),
+        child: AspectRatio(
+          aspectRatio: flex == 2 ? 2.15 : 1,
+          child: ElevatedButton(
+            onPressed: onPressed,
+            style: ElevatedButton.styleFrom(
+              elevation: 0,
+              backgroundColor: color,
+              foregroundColor: Colors.white,
+              padding: EdgeInsets.zero,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(100),
+              ),
             ),
-          ),
-          onPressed: onPressed,
-          child: Text(
-            text,
-            style: const TextStyle(
-              fontSize: 26,
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: Text(
+                  text,
+                  style: const TextStyle(
+                    fontSize: 30,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
             ),
           ),
         ),
