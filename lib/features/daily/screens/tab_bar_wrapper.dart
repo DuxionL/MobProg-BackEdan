@@ -19,6 +19,8 @@ class TabBarWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final textSecondary = Theme.of(context).textTheme.bodySmall!.color;
+
     return DefaultTabController(
       length: 5,
       child: Column(
@@ -27,7 +29,7 @@ class TabBarWrapper extends StatelessWidget {
             isScrollable: false,
             labelPadding: const EdgeInsets.symmetric(horizontal: 4),
             labelColor: AppTheme.accentRed,
-            unselectedLabelColor: AppTheme.textSecondary,
+            unselectedLabelColor: textSecondary,
             indicatorColor: AppTheme.accentRed,
             tabs: const [
               Tab(text: 'Daily'),

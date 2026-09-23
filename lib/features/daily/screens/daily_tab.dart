@@ -5,7 +5,6 @@ import '../../../models/transaction.dart';
 import '../widgets/summary_header.dart';
 import '../widgets/transaction_list_item.dart';
 import '../widgets/empty_state_widget.dart';
-import '../../../theme/theme.dart';
 
 class DailyTab extends StatelessWidget {
   final DateTime month;
@@ -21,6 +20,8 @@ class DailyTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final textSecondary = Theme.of(context).textTheme.bodySmall!.color;
+
     return Consumer<TransactionProvider>(
       builder: (context, provider, _) {
         final grouped = _applyFilter(provider.groupedByDay(month));
@@ -51,7 +52,7 @@ class DailyTab extends StatelessWidget {
                                   style: TextStyle(
                                     fontSize: 13,
                                     fontWeight: FontWeight.w600,
-                                    color: AppTheme.textSecondary,
+                                    color: textSecondary,
                                   ),
                                 ),
                               ),
