@@ -109,42 +109,30 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
         children: [
           // Type selector
           Row(
-            children: TransactionType.values.map((t) {
-              return Expanded(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: TransactionType.values.map((type) {
+              return Flexible(
                 child: InkWell(
-                  onTap: () => setState(() {
-                    _type = t;
-                    _category = null;
-                    _account = null;
-                    _fromAccount = null;
-                    _toAccount = null;
-                  }),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Radio<TransactionType>(
-                        value: t,
-                        groupValue: _type,
-                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        visualDensity: VisualDensity.compact,
-                        onChanged: (v) => setState(() {
-                          _type = v!;
-                          _category = null;
-                          _account = null;
-                          _fromAccount = null;
-                          _toAccount = null;
-                        }),
-                      ),
-                      const SizedBox(width: 4),
-                      Flexible(
-                        child: Text(
-                          t.label,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                  borderRadius: BorderRadius.circular(8),
+                  onTap: () => _selectType(type),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 10,
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Radio<TransactionType>(
+                          value: type,
+                          groupValue: _type,
+                          onChanged: (value) {
+                            if (value != null) _selectType(value);
+                          },
                         ),
-                      ),
-                    ],
+                        Flexible(child: Text(type.label)),
+                      ],
+                    ),
                   ),
                 ),
               );
@@ -155,7 +143,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
           // Date
           ListTile(
             title: const Text('Date'),
-            subtitle: Text(_dateTime.toString()),
+            subtitle: Text(_formatDateTime(_dateTime)),
             trailing: const Icon(Icons.calendar_today),
             onTap: _pickDateTime,
           ),
@@ -187,6 +175,22 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
         ],
       ),
     );
+  }
+
+  void _selectType(TransactionType type) {
+    setState(() {
+      _type = type;
+      _category = null;
+      _account = null;
+      _fromAccount = null;
+      _toAccount = null;
+    });
+  }
+
+  String _formatDateTime(DateTime dateTime) {
+    final hour = dateTime.hour.toString().padLeft(2, '0');
+    final minute = dateTime.minute.toString().padLeft(2, '0');
+    return '${dateTime.day}/${dateTime.month}/${dateTime.year} $hour:$minute';
   }
 
   List<Widget> _buildIncomeExpenseFields(
