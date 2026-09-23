@@ -149,6 +149,8 @@ class _CalendarTabState extends State<CalendarTab> {
           net += (t.type == TransactionType.expense) ? -t.amount : t.amount;
         }
 
+        // Unique categories present that day, capped at 3 dots so it
+        // doesn't overflow a small calendar cell.
         final categoryLabels = transactions
             .map((t) => t.category?.name ?? 'Transfer')
             .toSet()
@@ -223,19 +225,18 @@ class _CalendarTabState extends State<CalendarTab> {
     'Salary': Color(0xFFFFC107),
     'Bonus': Color(0xFFEF5350),
     'Refund': Color(0xFF66BB6A),
-    'Interest': Colors.white,
-    'Other Income': Color(0xFF616161),
+    'Interest': Color(0xFF4FC3F7),
+    'Other Income': Color(0xFF9E9E9E),
     // Expense
     'Food': Color(0xFFFFA726),
     'Transportation': Color(0xFFE53935),
-    'Utilities': Color(0xFFFFEE58),
+    'Utilities': Color(0xFFFBC02D),
     'Entertainment': Color(0xFF7E57C2),
     'Shopping': Color(0xFFEC407A),
     'Healthcare': Color(0xFF26A69A),
     'Education': Color(0xFF42A5F5),
     'Other Expense': Color(0xFF8D6E63),
-    // Transfer (no category on the model) — matches the purple already
-    // used for transfer transactions via Transaction.color elsewhere.
+
     'Transfer': Colors.purple,
   };
 
