@@ -18,6 +18,63 @@ class TransactionProvider extends ChangeNotifier {
   }
 
   List<Transaction> get all => List.unmodifiable(_transactions);
+  void addIncomeCategory(Category category) {
+    incomeCategories.add(category);
+    notifyListeners();
+  }
+
+  void updateIncomeCategoryAt(int index, Category category) {
+    if (index < 0 || index >= incomeCategories.length) return;
+    incomeCategories[index] = category;
+    notifyListeners();
+  }
+
+  void removeIncomeCategoryAt(int index) {
+    if (index < 0 || index >= incomeCategories.length) return;
+    incomeCategories.removeAt(index);
+    notifyListeners();
+  }
+
+  void removeIncomeCategoryNamed(String name) {
+    incomeCategories.removeWhere((c) => c.name == name);
+    notifyListeners();
+  }
+
+  void reorderIncomeCategory(int oldIndex, int newIndex) {
+    if (newIndex > oldIndex) newIndex -= 1;
+    final item = incomeCategories.removeAt(oldIndex);
+    incomeCategories.insert(newIndex, item);
+    notifyListeners();
+  }
+
+  void addExpenseCategory(Category category) {
+    expenseCategories.add(category);
+    notifyListeners();
+  }
+
+  void updateExpenseCategoryAt(int index, Category category) {
+    if (index < 0 || index >= expenseCategories.length) return;
+    expenseCategories[index] = category;
+    notifyListeners();
+  }
+
+  void removeExpenseCategoryAt(int index) {
+    if (index < 0 || index >= expenseCategories.length) return;
+    expenseCategories.removeAt(index);
+    notifyListeners();
+  }
+
+  void removeExpenseCategoryNamed(String name) {
+    expenseCategories.removeWhere((c) => c.name == name);
+    notifyListeners();
+  }
+
+  void reorderExpenseCategory(int oldIndex, int newIndex) {
+    if (newIndex > oldIndex) newIndex -= 1;
+    final item = expenseCategories.removeAt(oldIndex);
+    expenseCategories.insert(newIndex, item);
+    notifyListeners();
+  }
 
   Future<void> loadTransactions() async {
     final data = await _repository.getAllTransactions();

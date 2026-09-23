@@ -21,26 +21,88 @@ class Category {
   //copas dari si moneymanager oren pake emoji lmao
   final String name;
   final String emoji;
+  final List<String> subcategories;
 
-  Category({required this.name, required this.emoji});
+  Category({
+    required this.name,
+    required this.emoji,
+    List<String>? subcategories,
+  }) : subcategories = subcategories ?? const [];
+  Category copyWith({
+    String? name,
+    String? emoji,
+    List<String>? subcategories,
+  }) {
+    return Category(
+      name: name ?? this.name,
+      emoji: emoji ?? this.emoji,
+      subcategories: subcategories ?? this.subcategories,
+    );
+  }
 
   static final List<Category> defaultIncomeCategories = [
+    Category(name: 'Allowance', emoji: '🤑'),
     Category(name: 'Salary', emoji: '💰'),
-    Category(name: 'Bonus', emoji: '🎁'),
-    Category(name: 'Refund', emoji: '💵'),
-    Category(name: 'Interest', emoji: '📈'),
-    Category(name: 'Other Income', emoji: '➕'),
+    Category(name: 'Petty cash', emoji: '💵'),
+    Category(name: 'Bonus', emoji: '🏅'),
+    Category(name: 'Other', emoji: ''),
   ];
 
   static final List<Category> defaultExpenseCategories = [
-    Category(name: 'Food', emoji: '🍔'),
-    Category(name: 'Transportation', emoji: '🚗'),
-    Category(name: 'Utilities', emoji: '💡'),
-    Category(name: 'Entertainment', emoji: '🎬'),
-    Category(name: 'Shopping', emoji: '🛍️'),
-    Category(name: 'Healthcare', emoji: '⚕️'),
-    Category(name: 'Education', emoji: '📚'),
-    Category(name: 'Other Expense', emoji: '➖'),
+    Category(
+      name: 'Food',
+      emoji: '🍜',
+      subcategories: ['Lunch', 'Dinner', 'Eating out', 'Beverages'],
+    ),
+    Category(
+      name: 'Social Life',
+      emoji: '🧑‍🤝‍🧑',
+      subcategories: ['Friend', 'Fellowship', 'Alumni', 'Dues'],
+    ),
+    Category(name: 'Pets', emoji: '🐶'),
+    Category(
+      name: 'Transport',
+      emoji: '🚖',
+      subcategories: ['Bus', 'Subway', 'Taxi', 'Car'],
+    ),
+    Category(
+      name: 'Culture',
+      emoji: '🖼️',
+      subcategories: ['Books', 'Movie', 'Music', 'Apps'],
+    ),
+    Category(
+      name: 'Household',
+      emoji: '🪑',
+      subcategories: [
+        'Appliances',
+        'Furniture',
+        'Kitchen',
+        'Toiletries',
+        'Chandlery',
+      ],
+    ),
+    Category(
+      name: 'Apparel',
+      emoji: '🧥',
+      subcategories: ['Clothing', 'Fashion', 'Shoes', 'Laundry'],
+    ),
+    Category(
+      name: 'Beauty',
+      emoji: '💄',
+      subcategories: ['Cosmetics', 'Makeup', 'Accessories', 'Beauty'],
+    ),
+    Category(
+      name: 'Health',
+      emoji: '🧘',
+      subcategories: ['Health', 'Yoga', 'Hospital', 'Medicine'],
+    ),
+    Category(
+      name: 'Education',
+      emoji: '📙',
+      subcategories: ['Schooling', 'Textbooks', 'School supplies', 'Academy'],
+    ),
+    Category(name: 'Gift', emoji: '🎁'),
+    Category(name: 'Other', emoji: ''),
   ];
 }
 
