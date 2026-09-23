@@ -1,78 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:money_manager/features/transaction/transaction_provider.dart';
+import 'package:money_manager/models/transaction.dart';
 
 import '../../../theme/theme.dart';
 import 'select_main_category_page.dart';
-
-class ExpenseCategoryItem {
-  String name;
-  String icon;
-  List<String> subcategories;
-
-  ExpenseCategoryItem({
-    required this.name,
-    required this.icon,
-    List<String>? subcategories,
-  }) : subcategories = subcategories ?? [];
-}
-
-final ValueNotifier<List<ExpenseCategoryItem>> expenseCategoriesNotifier =
-    ValueNotifier<List<ExpenseCategoryItem>>([
-      ExpenseCategoryItem(
-        name: "Food",
-        icon: "🍜",
-        subcategories: ["Lunch", "Dinner", "Eating out", "Beverages"],
-      ),
-      ExpenseCategoryItem(
-        name: "Social Life",
-        icon: "🧑‍🤝‍🧑",
-        subcategories: ["Friend", "Fellowship", "Alumni", "Dues"],
-      ),
-      ExpenseCategoryItem(name: "Pets", icon: "🐶"),
-      ExpenseCategoryItem(
-        name: "Transport",
-        icon: "🚖",
-        subcategories: ["Bus", "Subway", "Taxi", "Car"],
-      ),
-      ExpenseCategoryItem(
-        name: "Culture",
-        icon: "🖼️",
-        subcategories: ["Books", "Movie", "Music", "Apps"],
-      ),
-      ExpenseCategoryItem(
-        name: "Household",
-        icon: "🪑",
-        subcategories: [
-          "Appliances",
-          "Furniture",
-          "Kitchen",
-          "Toiletries",
-          "Chandlery",
-        ],
-      ),
-      ExpenseCategoryItem(
-        name: "Apparel",
-        icon: "🧥",
-        subcategories: ["Clothing", "Fashion", "Shoes", "Laundry"],
-      ),
-      ExpenseCategoryItem(
-        name: "Beauty",
-        icon: "💄",
-        subcategories: ["Cosmetics", "Makeup", "Accessories", "Beauty"],
-      ),
-      ExpenseCategoryItem(
-        name: "Health",
-        icon: "🧘",
-        subcategories: ["Health", "Yoga", "Hospital", "Medicine"],
-      ),
-      ExpenseCategoryItem(
-        name: "Education",
-        icon: "📙",
-        subcategories: ["Schooling", "Textbooks", "School supplies", "Academy"],
-      ),
-      ExpenseCategoryItem(name: "Gift", icon: "🎁"),
-      ExpenseCategoryItem(name: "Other", icon: ""),
-    ]);
 
 class ExpenseCategoryPage extends StatefulWidget {
   const ExpenseCategoryPage({super.key});
@@ -105,8 +39,9 @@ class _ExpenseCategoryPageState extends State<ExpenseCategoryPage> {
     await prefs.setBool('expense_subcategory_on', value);
   }
 
-  void _navigateToAddEdit({ExpenseCategoryItem? category, int? index}) async {
-    final result = await Navigator.push<ExpenseCategoryItem>(
+  void _navigateToAddEdit({Category? category, int? index}) async {
+    final provider = context.read<TransactionProvider>();
+    final result = await Navigator.push<Category>(
       context,
       MaterialPageRoute(
         builder: (context) => AddEditExpenseCategoryPage(
@@ -117,15 +52,11 @@ class _ExpenseCategoryPageState extends State<ExpenseCategoryPage> {
     );
 
     if (result != null && result.name.trim().isNotEmpty) {
-      final currentList = List<ExpenseCategoryItem>.from(
-        expenseCategoriesNotifier.value,
-      );
       if (index != null) {
-        currentList[index] = result;
+        provider.updateExpenseCategoryAt(index, result);
       } else {
-        currentList.add(result);
+        provider.addExpenseCategory(result);
       }
-      expenseCategoriesNotifier.value = currentList;
     }
   }
 
@@ -146,7 +77,7 @@ class _ExpenseCategoryPageState extends State<ExpenseCategoryPage> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          "Expenses Category",
+          "Expense Category",
           style: TextStyle(color: textColor, fontSize: 18),
         ),
         actions: [
@@ -182,19 +113,13 @@ class _ExpenseCategoryPageState extends State<ExpenseCategoryPage> {
           ),
           Divider(color: dividerColor, height: 1, thickness: 1),
           Expanded(
-            child: ValueListenableBuilder<List<ExpenseCategoryItem>>(
-              valueListenable: expenseCategoriesNotifier,
-              builder: (context, categories, child) {
+            child: Consumer<TransactionProvider>(
+              builder: (context, provider, child) {
+                final categories = provider.expenseCategories;
                 return ReorderableListView.builder(
                   itemCount: categories.length,
                   onReorder: (oldIndex, newIndex) {
-                    final currentList = List<ExpenseCategoryItem>.from(
-                      categories,
-                    );
-                    if (newIndex > oldIndex) newIndex -= 1;
-                    final item = currentList.removeAt(oldIndex);
-                    currentList.insert(newIndex, item);
-                    expenseCategoriesNotifier.value = currentList;
+                    provider.reorderExpenseCategory(oldIndex, newIndex);
                   },
                   itemBuilder: (context, index) {
                     final item = categories[index];
@@ -212,14 +137,8 @@ class _ExpenseCategoryPageState extends State<ExpenseCategoryPage> {
                           child: Row(
                             children: [
                               GestureDetector(
-                                onTap: () {
-                                  final currentList =
-                                      List<ExpenseCategoryItem>.from(
-                                        categories,
-                                      );
-                                  currentList.removeAt(index);
-                                  expenseCategoriesNotifier.value = currentList;
-                                },
+                                onTap: () =>
+                                    provider.removeExpenseCategoryAt(index),
                                 child: const Icon(
                                   Icons.remove_circle,
                                   color: AppTheme.accentRed,
@@ -227,9 +146,9 @@ class _ExpenseCategoryPageState extends State<ExpenseCategoryPage> {
                                 ),
                               ),
                               const SizedBox(width: 14),
-                              if (item.icon.isNotEmpty) ...[
+                              if (item.emoji.isNotEmpty) ...[
                                 Text(
-                                  item.icon,
+                                  item.emoji,
                                   style: const TextStyle(fontSize: 18),
                                 ),
                                 const SizedBox(width: 10),
@@ -303,7 +222,7 @@ class _ExpenseCategoryPageState extends State<ExpenseCategoryPage> {
 }
 
 class AddEditExpenseCategoryPage extends StatefulWidget {
-  final ExpenseCategoryItem? category;
+  final Category? category;
   final bool isSubcategoryOn;
 
   const AddEditExpenseCategoryPage({
@@ -355,6 +274,7 @@ class _AddEditExpenseCategoryPageState
     final bgColor = isDark ? AppTheme.background : Colors.white;
     final textColor = isDark ? AppTheme.textPrimary : AppTheme.textPrimaryLight;
     final dividerColor = isDark ? Colors.grey.shade900 : Colors.grey.shade200;
+    final provider = context.read<TransactionProvider>();
 
     return Scaffold(
       backgroundColor: bgColor,
@@ -366,7 +286,7 @@ class _AddEditExpenseCategoryPageState
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          "Expenses Category",
+          "Expense Category",
           style: TextStyle(color: textColor, fontSize: 18),
         ),
         actions: [
@@ -387,7 +307,7 @@ class _AddEditExpenseCategoryPageState
                       return;
                     }
 
-                    final mainCategories = expenseCategoriesNotifier.value
+                    final mainCategories = provider.expenseCategories
                         .map((e) => e.name)
                         .where((name) => name != currentCategoryName)
                         .toList();
@@ -403,16 +323,13 @@ class _AddEditExpenseCategoryPageState
                     );
 
                     if (targetMainCategory != null && mounted) {
-                      final currentList = List<ExpenseCategoryItem>.from(
-                        expenseCategoriesNotifier.value,
-                      );
-
-                      final targetIndex = currentList.indexWhere(
+                      final targetIndex = provider.expenseCategories.indexWhere(
                         (e) => e.name == targetMainCategory,
                       );
 
                       if (targetIndex != -1) {
-                        final targetItem = currentList[targetIndex];
+                        final targetItem =
+                            provider.expenseCategories[targetIndex];
                         final newSubcategories = List<String>.from(
                           targetItem.subcategories,
                         );
@@ -427,23 +344,20 @@ class _AddEditExpenseCategoryPageState
                           }
                         }
 
-                        currentList[targetIndex] = ExpenseCategoryItem(
-                          name: targetItem.name,
-                          icon: targetItem.icon,
-                          subcategories: newSubcategories,
+                        provider.updateExpenseCategoryAt(
+                          targetIndex,
+                          targetItem.copyWith(subcategories: newSubcategories),
                         );
 
                         if (widget.category != null) {
-                          currentList.removeWhere(
-                            (e) => e.name == widget.category!.name,
+                          provider.removeExpenseCategoryNamed(
+                            widget.category!.name,
                           );
                         } else {
-                          currentList.removeWhere(
-                            (e) => e.name == currentCategoryName,
+                          provider.removeExpenseCategoryNamed(
+                            currentCategoryName,
                           );
                         }
-
-                        expenseCategoriesNotifier.value = currentList;
                       }
 
                       Navigator.pop(context);
@@ -589,9 +503,9 @@ class _AddEditExpenseCategoryPageState
 
                   Navigator.pop(
                     context,
-                    ExpenseCategoryItem(
+                    Category(
                       name: newName,
-                      icon: widget.category?.icon ?? "🏷️",
+                      emoji: widget.category?.emoji ?? "🏷️",
                       subcategories: _subcategories,
                     ),
                   );
