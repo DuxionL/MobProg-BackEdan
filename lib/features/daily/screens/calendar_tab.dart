@@ -79,11 +79,11 @@ class _CalendarTabState extends State<CalendarTab> {
                 label: Text('Today', style: TextStyle(color: AppTheme.accentRed)),
               ),
             ),
-            _buildWeekdayHeader(),
+            _buildWeekdayHeader(context),
             Expanded(
               child: Stack(
                 children: [
-                  _buildCalendarGrid(days, grouped),
+                  _buildCalendarGrid(context, days, grouped),
                   _buildDraggableTransactionSheet(grouped),
                 ],
               ),
@@ -94,7 +94,9 @@ class _CalendarTabState extends State<CalendarTab> {
     );
   }
 
-  Widget _buildWeekdayHeader() {
+  Widget _buildWeekdayHeader(BuildContext context) {
+    final textSecondary = Theme.of(context).textTheme.bodySmall!.color;
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
@@ -106,7 +108,7 @@ class _CalendarTabState extends State<CalendarTab> {
                     label,
                     style: TextStyle(
                       fontSize: 12,
-                      color: label == 'Sun' ? AppTheme.accentRed : AppTheme.textSecondary,
+                      color: label == 'Sun' ? AppTheme.accentRed : textSecondary,
                     ),
                   ),
                 ),
@@ -118,9 +120,12 @@ class _CalendarTabState extends State<CalendarTab> {
   }
 
   Widget _buildCalendarGrid(
+    BuildContext context,
     List<DateTime?> days,
     Map<DateTime, List<Transaction>> grouped,
   ) {
+    final textPrimary = Theme.of(context).textTheme.bodyLarge!.color;
+
     return GridView.builder(
       padding: const EdgeInsets.symmetric(horizontal: 4),
       itemCount: days.length,
@@ -144,8 +149,6 @@ class _CalendarTabState extends State<CalendarTab> {
           net += (t.type == TransactionType.expense) ? -t.amount : t.amount;
         }
 
-        // Unique categories present that day, capped at 3 dots so it
-        // doesn't overflow a small calendar cell.
         final categoryLabels = transactions
             .map((t) => t.category?.name ?? 'Transfer')
             .toSet()
@@ -174,7 +177,7 @@ class _CalendarTabState extends State<CalendarTab> {
                     fontSize: 12,
                     color: day.weekday == DateTime.sunday
                         ? AppTheme.accentRed
-                        : Colors.white,
+                        : textPrimary,
                   ),
                 ),
                 if (hasData) ...[
@@ -215,10 +218,6 @@ class _CalendarTabState extends State<CalendarTab> {
     );
   }
 
-  /// Curated colors matching each default category's emoji tone (e.g. Food
-  /// 🍔 → orange, Transportation 🚗 → red). Falls back to a hashed palette
-  /// for any category not in this list, so custom/future categories still
-  /// get a consistent color without breaking.
   static const _categoryColors = {
     // Income
     'Salary': Color(0xFFFFC107),
@@ -265,10 +264,13 @@ class _CalendarTabState extends State<CalendarTab> {
       minChildSize: 0.15,
       maxChildSize: 0.9,
       builder: (context, scrollController) {
+        final theme = Theme.of(context);
+        final textSecondary = theme.textTheme.bodySmall!.color;
+
         return Container(
           decoration: BoxDecoration(
-            color: AppTheme.background,
-            border: Border(top: BorderSide(color: AppTheme.surface, width: 1)),
+            color: theme.scaffoldBackgroundColor,
+            border: Border(top: BorderSide(color: theme.dividerColor, width: 1)),
             borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
           ),
           child: Column(
@@ -279,7 +281,7 @@ class _CalendarTabState extends State<CalendarTab> {
                 width: 36,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: AppTheme.textSecondary,
+                  color: textSecondary,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
