@@ -1,22 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:money_manager/features/home/screens/home_page.dart';
-import '../../../../../theme/theme.dart';
+import '../../../theme/theme.dart';
 
-class SplashScreen extends StatefulWidget{
+class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
   @override
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen>{
+class _SplashScreenState extends State<SplashScreen> {
   @override
-  void initState(){
+  void initState() {
     super.initState();
     _navigateToHome();
   }
 
-  Future<void> _navigateToHome() async{
+  Future<void> _navigateToHome() async {
     await Future.delayed(const Duration(seconds: 2));
     if (!mounted) return;
     Navigator.pushReplacement(
@@ -27,29 +27,32 @@ class _SplashScreenState extends State<SplashScreen>{
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final textPrimary = theme.textTheme.bodyLarge!.color;
+
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
+            const Icon(
               Icons.account_balance_wallet,
-              color: AppTheme.accentRed,
+              color: AppTheme.accentRed, // CHANGED: tetap oren, gak ikut accent color pilihan user
               size: 72,
             ),
             const SizedBox(height: 16),
-            const Text(
+            Text(
               'Money Manager',
               style: TextStyle(
-                color: AppTheme.textPrimary,
+                color: textPrimary,
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 24),
             const CircularProgressIndicator(
-              color: AppTheme.accentRed,
+              color: AppTheme.accentRed, // CHANGED: tetap oren juga
               strokeWidth: 2,
             ),
           ],
