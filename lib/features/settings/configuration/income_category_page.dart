@@ -1,29 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:money_manager/features/transaction/transaction_provider.dart';
+import 'package:money_manager/models/transaction.dart';
 
 import '../../../theme/theme.dart';
 import 'select_main_category_page.dart';
-
-class IncomeCategoryItem {
-  String name;
-  String icon;
-  List<String> subcategories;
-
-  IncomeCategoryItem({
-    required this.name,
-    required this.icon,
-    List<String>? subcategories,
-  }) : subcategories = subcategories ?? [];
-}
-
-final ValueNotifier<List<IncomeCategoryItem>> incomeCategoriesNotifier =
-    ValueNotifier<List<IncomeCategoryItem>>([
-      IncomeCategoryItem(name: "Allowance", icon: "🤑"),
-      IncomeCategoryItem(name: "Salary", icon: "💰"),
-      IncomeCategoryItem(name: "Petty cash", icon: "💵"),
-      IncomeCategoryItem(name: "Bonus", icon: "🏅"),
-      IncomeCategoryItem(name: "Other", icon: ""),
-    ]);
 
 class IncomeCategoryPage extends StatefulWidget {
   const IncomeCategoryPage({super.key});
@@ -56,8 +39,9 @@ class _IncomeCategoryPageState extends State<IncomeCategoryPage> {
     await prefs.setBool('income_subcategory_on', value);
   }
 
-  void _navigateToAddEdit({IncomeCategoryItem? category, int? index}) async {
-    final result = await Navigator.push<IncomeCategoryItem>(
+  void _navigateToAddEdit({Category? category, int? index}) async {
+    final provider = context.read<TransactionProvider>();
+    final result = await Navigator.push<Category>(
       context,
       MaterialPageRoute(
         builder: (context) => AddEditIncomeCategoryPage(
@@ -68,15 +52,11 @@ class _IncomeCategoryPageState extends State<IncomeCategoryPage> {
     );
 
     if (result != null && result.name.trim().isNotEmpty) {
-      final currentList = List<IncomeCategoryItem>.from(
-        incomeCategoriesNotifier.value,
-      );
       if (index != null) {
-        currentList[index] = result;
+        provider.updateIncomeCategoryAt(index, result);
       } else {
-        currentList.add(result);
+        provider.addIncomeCategory(result);
       }
-      incomeCategoriesNotifier.value = currentList;
     }
   }
 
@@ -133,19 +113,13 @@ class _IncomeCategoryPageState extends State<IncomeCategoryPage> {
           ),
           Divider(color: dividerColor, height: 1, thickness: 1),
           Expanded(
-            child: ValueListenableBuilder<List<IncomeCategoryItem>>(
-              valueListenable: incomeCategoriesNotifier,
-              builder: (context, categories, child) {
+            child: Consumer<TransactionProvider>(
+              builder: (context, provider, child) {
+                final categories = provider.incomeCategories;
                 return ReorderableListView.builder(
                   itemCount: categories.length,
                   onReorder: (oldIndex, newIndex) {
-                    final currentList = List<IncomeCategoryItem>.from(
-                      categories,
-                    );
-                    if (newIndex > oldIndex) newIndex -= 1;
-                    final item = currentList.removeAt(oldIndex);
-                    currentList.insert(newIndex, item);
-                    incomeCategoriesNotifier.value = currentList;
+                    provider.reorderIncomeCategory(oldIndex, newIndex);
                   },
                   itemBuilder: (context, index) {
                     final item = categories[index];
@@ -163,12 +137,8 @@ class _IncomeCategoryPageState extends State<IncomeCategoryPage> {
                           child: Row(
                             children: [
                               GestureDetector(
-                                onTap: () {
-                                  final currentList =
-                                      List<IncomeCategoryItem>.from(categories);
-                                  currentList.removeAt(index);
-                                  incomeCategoriesNotifier.value = currentList;
-                                },
+                                onTap: () =>
+                                    provider.removeIncomeCategoryAt(index),
                                 child: const Icon(
                                   Icons.remove_circle,
                                   color: AppTheme.accentRed,
@@ -176,9 +146,9 @@ class _IncomeCategoryPageState extends State<IncomeCategoryPage> {
                                 ),
                               ),
                               const SizedBox(width: 14),
-                              if (item.icon.isNotEmpty) ...[
+                              if (item.emoji.isNotEmpty) ...[
                                 Text(
-                                  item.icon,
+                                  item.emoji,
                                   style: const TextStyle(fontSize: 18),
                                 ),
                                 const SizedBox(width: 10),
@@ -252,7 +222,7 @@ class _IncomeCategoryPageState extends State<IncomeCategoryPage> {
 }
 
 class AddEditIncomeCategoryPage extends StatefulWidget {
-  final IncomeCategoryItem? category;
+  final Category? category;
   final bool isSubcategoryOn;
 
   const AddEditIncomeCategoryPage({
@@ -303,6 +273,7 @@ class _AddEditIncomeCategoryPageState extends State<AddEditIncomeCategoryPage> {
     final bgColor = isDark ? AppTheme.background : Colors.white;
     final textColor = isDark ? AppTheme.textPrimary : AppTheme.textPrimaryLight;
     final dividerColor = isDark ? Colors.grey.shade900 : Colors.grey.shade200;
+    final provider = context.read<TransactionProvider>();
 
     return Scaffold(
       backgroundColor: bgColor,
@@ -335,7 +306,7 @@ class _AddEditIncomeCategoryPageState extends State<AddEditIncomeCategoryPage> {
                       return;
                     }
 
-                    final mainCategories = incomeCategoriesNotifier.value
+                    final mainCategories = provider.incomeCategories
                         .map((e) => e.name)
                         .where((name) => name != currentCategoryName)
                         .toList();
@@ -351,16 +322,13 @@ class _AddEditIncomeCategoryPageState extends State<AddEditIncomeCategoryPage> {
                     );
 
                     if (targetMainCategory != null && mounted) {
-                      final currentList = List<IncomeCategoryItem>.from(
-                        incomeCategoriesNotifier.value,
-                      );
-
-                      final targetIndex = currentList.indexWhere(
+                      final targetIndex = provider.incomeCategories.indexWhere(
                         (e) => e.name == targetMainCategory,
                       );
 
                       if (targetIndex != -1) {
-                        final targetItem = currentList[targetIndex];
+                        final targetItem =
+                            provider.incomeCategories[targetIndex];
                         final newSubcategories = List<String>.from(
                           targetItem.subcategories,
                         );
@@ -375,23 +343,20 @@ class _AddEditIncomeCategoryPageState extends State<AddEditIncomeCategoryPage> {
                           }
                         }
 
-                        currentList[targetIndex] = IncomeCategoryItem(
-                          name: targetItem.name,
-                          icon: targetItem.icon,
-                          subcategories: newSubcategories,
+                        provider.updateIncomeCategoryAt(
+                          targetIndex,
+                          targetItem.copyWith(subcategories: newSubcategories),
                         );
 
                         if (widget.category != null) {
-                          currentList.removeWhere(
-                            (e) => e.name == widget.category!.name,
+                          provider.removeIncomeCategoryNamed(
+                            widget.category!.name,
                           );
                         } else {
-                          currentList.removeWhere(
-                            (e) => e.name == currentCategoryName,
+                          provider.removeIncomeCategoryNamed(
+                            currentCategoryName,
                           );
                         }
-
-                        incomeCategoriesNotifier.value = currentList;
                       }
 
                       Navigator.pop(context);
@@ -537,9 +502,9 @@ class _AddEditIncomeCategoryPageState extends State<AddEditIncomeCategoryPage> {
 
                   Navigator.pop(
                     context,
-                    IncomeCategoryItem(
+                    Category(
                       name: newName,
-                      icon: widget.category?.icon ?? "🏷️",
+                      emoji: widget.category?.emoji ?? "🏷️",
                       subcategories: _subcategories,
                     ),
                   );
