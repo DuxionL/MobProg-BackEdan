@@ -4,8 +4,6 @@ import '../../transaction/transaction_provider.dart';
 import '../../../models/transaction.dart';
 import '../../../theme/theme.dart';
 
-/// Result of the filter page — both category and account selections.
-/// Empty sets mean "no filter on that dimension" (show all).
 class FilterSelection {
   final Set<String> categories;
   final Set<String> accounts;
@@ -61,11 +59,13 @@ class _CategoryFilterPageState extends State<CategoryFilterPage>
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<TransactionProvider>();
+    final theme = Theme.of(context);
+    final textSecondary = theme.textTheme.bodySmall!.color;
 
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: AppTheme.background,
+        backgroundColor: theme.scaffoldBackgroundColor,
         elevation: 0,
         title: const Text('Filter'),
         actions: [
@@ -83,7 +83,7 @@ class _CategoryFilterPageState extends State<CategoryFilterPage>
           controller: _tabController,
           isScrollable: false,
           labelColor: AppTheme.accentRed,
-          unselectedLabelColor: AppTheme.textSecondary,
+          unselectedLabelColor: textSecondary,
           indicatorColor: AppTheme.accentRed,
           tabs: const [
             Tab(text: 'Income'),
@@ -95,9 +95,9 @@ class _CategoryFilterPageState extends State<CategoryFilterPage>
       body: TabBarView(
         controller: _tabController,
         children: [
-          _buildCategoryList(provider.incomeCategories),
-          _buildCategoryList(provider.expenseCategories),
-          _buildAccountList(provider.accounts, provider),
+          _buildCategoryList(context, provider.incomeCategories),
+          _buildCategoryList(context, provider.expenseCategories),
+          _buildAccountList(context, provider.accounts, provider),
         ],
       ),
       bottomNavigationBar: SafeArea(
@@ -123,7 +123,8 @@ class _CategoryFilterPageState extends State<CategoryFilterPage>
     );
   }
 
-  Widget _buildCategoryList(List categories) {
+  Widget _buildCategoryList(BuildContext context, List categories) {
+    final textPrimary = Theme.of(context).textTheme.bodyLarge!.color;
     final allNames = categories.map((c) => c.name as String).toSet();
     final allChecked = allNames.isNotEmpty &&
         allNames.every((name) => _selectedCategories.contains(name));
@@ -137,7 +138,7 @@ class _CategoryFilterPageState extends State<CategoryFilterPage>
             activeColor: AppTheme.accentRed,
             title: Text(
               'All',
-              style: TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.bold),
+              style: TextStyle(color: textPrimary, fontWeight: FontWeight.bold),
             ),
             onChanged: (checked) {
               setState(() {
@@ -158,7 +159,7 @@ class _CategoryFilterPageState extends State<CategoryFilterPage>
           activeColor: AppTheme.accentRed,
           title: Text(
             '${category.emoji} ${category.name}',
-            style: TextStyle(color: AppTheme.textPrimary),
+            style: TextStyle(color: textPrimary),
           ),
           onChanged: (checked) {
             setState(() {
@@ -174,7 +175,12 @@ class _CategoryFilterPageState extends State<CategoryFilterPage>
     );
   }
 
-  Widget _buildAccountList(List accounts, TransactionProvider provider) {
+  Widget _buildAccountList(
+    BuildContext context,
+    List accounts,
+    TransactionProvider provider,
+  ) {
+    final textPrimary = Theme.of(context).textTheme.bodyLarge!.color;
     final allNames = accounts.map((a) => a.name as String).toSet();
     final allChecked = allNames.isNotEmpty &&
         allNames.every((name) => _selectedAccounts.contains(name));
@@ -227,7 +233,7 @@ class _CategoryFilterPageState extends State<CategoryFilterPage>
                   title: Text(
                     'All',
                     style: TextStyle(
-                      color: AppTheme.textPrimary,
+                      color: textPrimary,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -253,7 +259,7 @@ class _CategoryFilterPageState extends State<CategoryFilterPage>
               return CheckboxListTile(
                 value: isChecked,
                 activeColor: AppTheme.accentRed,
-                title: Text(account.name, style: TextStyle(color: AppTheme.textPrimary)),
+                title: Text(account.name, style: TextStyle(color: textPrimary)),
                 subtitle: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
@@ -319,8 +325,6 @@ class _CategoryFilterPageState extends State<CategoryFilterPage>
         .fold(0.0, (sum, t) => sum + t.amount);
   }
 
-  /// Sums transfer transactions into (incoming=true) or out of
-  /// (incoming=false) the given account.
   double _accountTransferTotal(
     TransactionProvider provider,
     String accountName, {
