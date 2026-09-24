@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../components/settings_grid.dart';
 import 'passcode_screen.dart';
+import 'passcode_lock.dart';
 import '../../../theme/theme.dart';
 
 String globalSelectedTimeout = "Immediately";
@@ -72,7 +73,7 @@ class _PasscodeSettingsPageState extends State<PasscodeSettingsPage> {
                 return InkWell(
                   onTap: () {
                     setState(() {
-                      globalSelectedTimeout = option;
+                      PasscodeLock.saveTimeout(option);
                     });
                     Navigator.pop(context);
                   },
@@ -220,7 +221,7 @@ class _PasscodeSettingsPageState extends State<PasscodeSettingsPage> {
                           ? Colors.grey.shade800
                           : Colors.grey.shade300,
                       onChanged: (value) =>
-                          setState(() => globalIsBiometricsOn = value),
+                          setState(() => PasscodeLock.saveBiometrics(value)),
                     ),
                   ],
                 ),

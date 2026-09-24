@@ -4,16 +4,18 @@ import 'passcode_settings_page.dart';
 import '../components/settings_grid.dart';
 import '../../../theme/theme.dart';
 
-enum PasscodeAction { create, authenticate, turnOff, change }
+enum PasscodeAction { create, authenticate, turnOff, change, unlock }
 
 class PasscodeScreen extends StatefulWidget {
   final PasscodeAction action;
   final bool fromSettings;
+  final VoidCallback? onUnlocked;
 
   const PasscodeScreen({
     super.key,
     required this.action,
     this.fromSettings = false,
+    this.onUnlocked,
   });
 
   @override
@@ -56,7 +58,13 @@ class _PasscodeScreenState extends State<PasscodeScreen> {
 
       if (_enteredPin.length == 4) {
         Future.delayed(const Duration(milliseconds: 200), () {
-          if (widget.action == PasscodeAction.turnOff) {
+          if (widget.action == PasscodeAction.unlock) {
+            if (_enteredPin == passcodeNotifier.value) {
+              widget.onUnlocked?.call();
+            } else {
+              _triggerError("Wrong Passcode\nPlease try again.");
+            }
+          } else if (widget.action == PasscodeAction.turnOff) {
             if (_enteredPin == passcodeNotifier.value) {
               passcodeNotifier.value = null;
               Navigator.pop(context);
@@ -157,7 +165,10 @@ class _PasscodeScreenState extends State<PasscodeScreen> {
     String appBarTitle = "";
     String mainTitle = "";
 
-    if (widget.action == PasscodeAction.turnOff) {
+    if (widget.action == PasscodeAction.unlock) {
+      appBarTitle = "Enter your passcode";
+      mainTitle = "Enter your passcode";
+    } else if (widget.action == PasscodeAction.turnOff) {
       appBarTitle = "Turn off Passcode";
       mainTitle = "Enter your passcode";
     } else if (widget.action == PasscodeAction.authenticate) {
@@ -181,10 +192,13 @@ class _PasscodeScreenState extends State<PasscodeScreen> {
       appBar: AppBar(
         backgroundColor: bgColor,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: textColor),
-          onPressed: () => Navigator.pop(context),
-        ),
+        automaticallyImplyLeading: false,
+        leading: widget.action == PasscodeAction.unlock
+            ? null
+            : IconButton(
+                icon: const Icon(Icons.arrow_back, color: textColor),
+                onPressed: () => Navigator.pop(context),
+              ),
         title: Text(
           appBarTitle,
           style: const TextStyle(color: textColor, fontSize: 18),

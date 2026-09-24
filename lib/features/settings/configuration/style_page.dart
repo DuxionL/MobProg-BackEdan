@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../theme/theme.dart';
 
@@ -85,8 +86,10 @@ class StylePage extends StatelessWidget {
     return Column(
       children: [
         InkWell(
-          onTap: () {
+          onTap: () async {
             themeNotifier.value = mode;
+            final prefs = await SharedPreferences.getInstance();
+            await prefs.setString('theme_mode', mode.name);
           },
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),

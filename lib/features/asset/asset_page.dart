@@ -6,6 +6,7 @@ import '../transaction/transaction_provider.dart';
 import 'package:money_manager/models/transaction.dart';
 
 import '../../theme/theme.dart';
+import '../settings/configuration/currency_settings.dart';
 
 import 'components/asset_summary_header.dart';
 import 'components/asset_trend_chart.dart';
@@ -93,70 +94,74 @@ class AssetPage extends StatelessWidget {
             ? Colors.red[400]!
             : Colors.blue[400]!;
 
-        return Scaffold(
-          backgroundColor: bgColor,
-          appBar: AppBar(
-            backgroundColor: bgColor,
-            elevation: 0,
-            title: Text(
-              "Accounts",
-              style: TextStyle(color: textColor, fontSize: 18),
-            ),
-            actions: [
-              Icon(Icons.bar_chart, color: textColor),
-              const SizedBox(width: 16),
-              Icon(Icons.more_vert, color: textColor),
-              const SizedBox(width: 16),
-            ],
-          ),
-          body: SafeArea(
-            child: Column(
-              children: [
-                AssetSummaryHeader(
-                  assets: totalAssets,
-                  liabilities: totalLiabilities,
-                  total: totalAll,
-                ),
-                const AssetTrendChart(),
+        return ValueListenableBuilder<CurrencyConfig>(
+          valueListenable: CurrencySettings.notifier,
+          builder: (context, currency, child) {
+            final cashText = CurrencySettings.format(cashBalance.abs());
+            final accountsText = CurrencySettings.format(accountsBalance.abs());
+            final cardText = CurrencySettings.format(cardBalance.abs());
 
-                Expanded(
-                  child: ListView(
-                    children: [
-                      AssetListItem(
-                        title: "Cash",
-                        titleAmount:
-                            "\$ ${cashBalance.abs().toStringAsFixed(2)}",
-                        titleAmountColor: cashColor,
-                        itemLabel: "Cash",
-                        itemAmount:
-                            "\$ ${cashBalance.abs().toStringAsFixed(2)}",
-                        itemAmountColor: cashColor,
-                      ),
-                      AssetListItem(
-                        title: "Accounts",
-                        titleAmount:
-                            "\$ ${accountsBalance.abs().toStringAsFixed(2)}",
-                        titleAmountColor: accountsColor,
-                        itemLabel: "Accounts",
-                        itemAmount:
-                            "\$ ${accountsBalance.abs().toStringAsFixed(2)}",
-                        itemAmountColor: accountsColor,
-                      ),
-                      AssetListItem(
-                        isCard: true,
-                        title: "Card",
-                        itemLabel: "Card",
-                        cardPayableAmount: "\$ 0.00",
-                        cardOutstAmount:
-                            "\$ ${cardBalance.abs().toStringAsFixed(2)}",
-                        cardOutstColor: cardColor,
-                      ),
-                    ],
-                  ),
+            return Scaffold(
+              backgroundColor: bgColor,
+              appBar: AppBar(
+                backgroundColor: bgColor,
+                elevation: 0,
+                title: Text(
+                  "Accounts",
+                  style: TextStyle(color: textColor, fontSize: 18),
                 ),
-              ],
-            ),
-          ),
+                actions: [
+                  Icon(Icons.bar_chart, color: textColor),
+                  const SizedBox(width: 16),
+                  Icon(Icons.more_vert, color: textColor),
+                  const SizedBox(width: 16),
+                ],
+              ),
+              body: SafeArea(
+                child: Column(
+                  children: [
+                    AssetSummaryHeader(
+                      assets: totalAssets,
+                      liabilities: totalLiabilities,
+                      total: totalAll,
+                    ),
+                    const AssetTrendChart(),
+
+                    Expanded(
+                      child: ListView(
+                        children: [
+                          AssetListItem(
+                            title: "Cash",
+                            titleAmount: cashText,
+                            titleAmountColor: cashColor,
+                            itemLabel: "Cash",
+                            itemAmount: cashText,
+                            itemAmountColor: cashColor,
+                          ),
+                          AssetListItem(
+                            title: "Accounts",
+                            titleAmount: accountsText,
+                            titleAmountColor: accountsColor,
+                            itemLabel: "Accounts",
+                            itemAmount: accountsText,
+                            itemAmountColor: accountsColor,
+                          ),
+                          AssetListItem(
+                            isCard: true,
+                            title: "Card",
+                            itemLabel: "Card",
+                            cardPayableAmount: CurrencySettings.format(0),
+                            cardOutstAmount: cardText,
+                            cardOutstColor: cardColor,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
         );
       },
     );

@@ -5,6 +5,6 @@ class AssetTrendChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const SizedBox(height: 1); // Disembunyikan jadi 1 pixel aja
+    return const SizedBox(height: 1);
   }
 }
