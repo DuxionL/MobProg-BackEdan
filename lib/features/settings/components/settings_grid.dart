@@ -4,6 +4,9 @@ import 'package:money_manager/features/settings/calculator/calculator_page.dart'
 import '../configuration/configuration_page.dart';
 import '../accounts/account_settings_page.dart';
 import '../passcode/passcode_screen.dart';
+import '../feedback/feedback_page.dart';
+import '../help/help_page.dart';
+import '../recommend/recommend_page.dart';
 import '../../../theme/theme.dart';
 
 final ValueNotifier<bool> isPasscodeOnNotifier = ValueNotifier<bool>(false);
@@ -81,6 +84,25 @@ class SettingsGrid extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                       builder: (context) => const CalculatorPage(),
+                    ),
+                  );
+                } else if (menuItems[index]['label'] == 'Feedback') {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const FeedbackPage(),
+                    ),
+                  );
+                } else if (menuItems[index]['label'] == 'Help') {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const HelpPage()),
+                  );
+                } else if (menuItems[index]['label'] == 'Recommend') {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const RecommendPage(),
                     ),
                   );
                 }

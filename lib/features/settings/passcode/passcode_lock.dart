@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../components/settings_grid.dart';
-import '../../../theme/theme.dart';
+import 'package:money_manager/features/settings/components/settings_grid.dart';
 import 'passcode_screen.dart';
 import 'passcode_settings_page.dart';
 
