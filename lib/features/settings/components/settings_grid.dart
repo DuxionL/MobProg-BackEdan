@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:money_manager/features/settings/calculator/calculator_page.dart';
 
 import '../configuration/configuration_page.dart';
-import '../accounts/accounts_settings_page.dart';
+import '../accounts/account_settings_page.dart';
 import '../passcode/passcode_screen.dart';
 import '../../../theme/theme.dart';
 
