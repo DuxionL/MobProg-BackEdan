@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'currency_settings.dart';
 import '../../../theme/theme.dart';
 
 class Currency {
@@ -120,8 +120,10 @@ class _MainCurrencySettingPageState extends State<MainCurrencySettingPage> {
   Future<void> _saveSettings() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('currency_code', _selectedCurrency.code);
+    await prefs.setString('currency_symbol', _selectedCurrency.displaySymbol);
     await prefs.setString('currency_position', _unitPosition);
     await prefs.setString('currency_decimal', _decimalPoint);
+    await CurrencySettings.load();
   }
 
   String _getFormattedPreview([String? positionOverride]) {

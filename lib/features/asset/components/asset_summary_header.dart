@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../settings/configuration/currency_settings.dart';
+
 class AssetSummaryHeader extends StatelessWidget {
   final double assets;
   final double liabilities;
@@ -63,7 +65,7 @@ class AssetSummaryHeader extends StatelessWidget {
         Text(title, style: TextStyle(color: headerColor, fontSize: 13)),
         const SizedBox(height: 8),
         Text(
-          amount.toStringAsFixed(2),
+          CurrencySettings.format(amount),
           style: TextStyle(color: amountColor, fontSize: 16),
         ),
       ],
