@@ -1,29 +1,37 @@
 import 'package:flutter/material.dart';
 
+class AssetRow {
+  final String label;
+  final String? amount;
+  final Color? amountColor;
+  final String? payableAmount;
+  final String? outstAmount;
+  final Color? outstColor;
+
+  const AssetRow({
+    required this.label,
+    this.amount,
+    this.amountColor,
+    this.payableAmount,
+    this.outstAmount,
+    this.outstColor,
+  });
+}
+
 class AssetListItem extends StatelessWidget {
   final String title;
   final String? titleAmount;
   final Color? titleAmountColor;
-  final String itemLabel;
-  final String? itemAmount;
-  final Color? itemAmountColor;
+  final List<AssetRow> rows;
   final bool isCard;
-  final String? cardPayableAmount;
-  final String? cardOutstAmount;
-  final Color? cardOutstColor;
 
   const AssetListItem({
     super.key,
     required this.title,
+    required this.rows,
     this.titleAmount,
     this.titleAmountColor,
-    required this.itemLabel,
-    this.itemAmount,
-    this.itemAmountColor,
     this.isCard = false,
-    this.cardPayableAmount,
-    this.cardOutstAmount,
-    this.cardOutstColor,
   });
 
   @override
@@ -62,56 +70,80 @@ class AssetListItem extends StatelessWidget {
             ],
           ),
         ),
-        Container(
-          color: Colors.transparent,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        ...rows.map((row) {
+          return Column(
             children: [
-              Text(itemLabel, style: TextStyle(color: textColor, fontSize: 15)),
-              if (!isCard && itemAmount != null)
-                Text(
-                  itemAmount!,
-                  style: TextStyle(color: itemAmountColor, fontSize: 15),
+              Container(
+                color: Colors.transparent,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 16,
                 ),
-              if (isCard)
-                Row(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(
-                          "Balance Payable",
-                          style: TextStyle(color: labelColor, fontSize: 11),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          cardPayableAmount ?? "",
-                          style: TextStyle(color: textColor, fontSize: 14),
-                        ),
-                      ],
+                    Text(
+                      row.label,
+                      style: TextStyle(color: textColor, fontSize: 15),
                     ),
-                    const SizedBox(width: 20),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(
-                          "Outst. Balance",
-                          style: TextStyle(color: labelColor, fontSize: 11),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          cardOutstAmount ?? "",
-                          style: TextStyle(color: cardOutstColor, fontSize: 14),
-                        ),
-                      ],
-                    ),
+                    if (!isCard && row.amount != null)
+                      Text(
+                        row.amount!,
+                        style: TextStyle(color: row.amountColor, fontSize: 15),
+                      ),
+                    if (isCard)
+                      Row(
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text(
+                                "Balance Payable",
+                                style: TextStyle(
+                                  color: labelColor,
+                                  fontSize: 11,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                row.payableAmount ?? "",
+                                style: TextStyle(
+                                  color: textColor,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(width: 20),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text(
+                                "Outst. Balance",
+                                style: TextStyle(
+                                  color: labelColor,
+                                  fontSize: 11,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                row.outstAmount ?? "",
+                                style: TextStyle(
+                                  color: row.outstColor,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                   ],
                 ),
+              ),
+              Divider(color: dividerColor, height: 1, thickness: 1),
             ],
-          ),
-        ),
-        Divider(color: dividerColor, height: 1, thickness: 1),
+          );
+        }),
       ],
     );
   }
