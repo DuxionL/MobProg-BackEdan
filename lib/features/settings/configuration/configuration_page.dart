@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../theme/theme.dart';
 import 'style_page.dart';
 import 'income_category_page.dart';
 import 'expenses_category_page.dart';
+import 'main_currency_page.dart';
 
 class ConfigurationPage extends StatefulWidget {
   const ConfigurationPage({super.key});
@@ -30,6 +32,40 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
   String _passcode = "OFF";
   String _alarmSetting = "ON";
   String _quickAdd = "OFF";
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAllConfigurations();
+  }
+
+  Future<void> _loadAllConfigurations() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _subCategory = prefs.getString('cfg_sub_category') ?? "OFF";
+      _mainCurrency = prefs.getString('cfg_main_currency') ?? "USD (\$)";
+      _subCurrency = prefs.getString('cfg_sub_currency') ?? "";
+      _startScreen = prefs.getString('cfg_start_screen') ?? "Daily";
+      _monthlyStartDate = prefs.getString('cfg_monthly_start_date') ?? "Every 1";
+      _weeklyStartDay = prefs.getString('cfg_weekly_start_day') ?? "Sunday";
+      _carryOver = prefs.getString('cfg_carry_over') ?? "OFF";
+      _swipe = prefs.getString('cfg_swipe') ?? "To Change Date";
+      _colorSetting = prefs.getString('cfg_color_setting') ?? "Set. A";
+      _timeInput = prefs.getString('cfg_time_input') ?? "Input Only, Desc.";
+      _showDescription = prefs.getString('cfg_show_description') ?? "OFF";
+      _autocomplete = prefs.getString('cfg_autocomplete') ?? "ON";
+      _inputOrder = prefs.getString('cfg_input_order') ?? "From Amount";
+      _noteButton = prefs.getString('cfg_note_button') ?? "OFF";
+      _passcode = prefs.getString('cfg_passcode') ?? "OFF";
+      _alarmSetting = prefs.getString('cfg_alarm_setting') ?? "ON";
+      _quickAdd = prefs.getString('cfg_quick_add') ?? "OFF";
+    });
+  }
+
+  Future<void> _saveConfig(String key, String value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(key, value);
+  }
 
   void _showSelectionSheet(
     String title,
@@ -105,7 +141,7 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
                               ),
                             ),
                             if (isSelected)
-                              Icon(
+                              const Icon(
                                 Icons.check,
                                 color: AppTheme.accentRed,
                                 size: 20,
@@ -187,8 +223,11 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
             textColor,
             isDark,
             value: _subCategory,
-            onTap: () =>
-                setState(() => _subCategory = _toggleOnOff(_subCategory)),
+            onTap: () {
+              final newVal = _toggleOnOff(_subCategory);
+              setState(() => _subCategory = newVal);
+              _saveConfig('cfg_sub_category', newVal);
+            },
           ),
           _buildListItem("Budget Setting", textColor, isDark, onTap: () {}),
           _buildListItem("Repeat Setting", textColor, isDark, onTap: () {}),
@@ -199,13 +238,21 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
             textColor,
             isDark,
             value: _mainCurrency,
-            onTap: () {
-              _showSelectionSheet(
-                "Main Currency Setting",
-                ["USD (\$)", "EUR (€)", "IDR (Rp)", "JPY (¥)"],
-                _mainCurrency,
-                (val) => setState(() => _mainCurrency = val),
+            onTap: () async {
+              final result = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const MainCurrencySettingPage(),
+                ),
               );
+              if (result != null) {
+                final formatted =
+                    "${result['currency'].code} (${result['currency'].displaySymbol})";
+                setState(() {
+                  _mainCurrency = formatted;
+                });
+                _saveConfig('cfg_main_currency', formatted);
+              }
             },
           ),
           _buildListItem(
@@ -225,7 +272,10 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
                 "Start Screen",
                 ["Daily", "Calendar", "Weekly", "Monthly", "Summary"],
                 _startScreen,
-                (val) => setState(() => _startScreen = val),
+                (val) {
+                  setState(() => _startScreen = val);
+                  _saveConfig('cfg_start_screen', val);
+                },
               );
             },
           ),
@@ -239,7 +289,10 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
                 "Monthly Start Date",
                 ["Every 1", "Every 2", "Every 5", "Every 15", "End of Month"],
                 _monthlyStartDate,
-                (val) => setState(() => _monthlyStartDate = val),
+                (val) {
+                  setState(() => _monthlyStartDate = val);
+                  _saveConfig('cfg_monthly_start_date', val);
+                },
               );
             },
           ),
@@ -253,7 +306,10 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
                 "Weekly Start Day",
                 ["Sunday", "Monday", "Saturday"],
                 _weeklyStartDay,
-                (val) => setState(() => _weeklyStartDay = val),
+                (val) {
+                  setState(() => _weeklyStartDay = val);
+                  _saveConfig('cfg_weekly_start_day', val);
+                },
               );
             },
           ),
@@ -262,7 +318,11 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
             textColor,
             isDark,
             value: _carryOver,
-            onTap: () => setState(() => _carryOver = _toggleOnOff(_carryOver)),
+            onTap: () {
+              final newVal = _toggleOnOff(_carryOver);
+              setState(() => _carryOver = newVal);
+              _saveConfig('cfg_carry_over', newVal);
+            },
           ),
           _buildListItem(
             "Swipe",
@@ -274,7 +334,10 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
                 "Swipe",
                 ["To Change Date", "To Change Tab", "Do Nothing"],
                 _swipe,
-                (val) => setState(() => _swipe = val),
+                (val) {
+                  setState(() => _swipe = val);
+                  _saveConfig('cfg_swipe', val);
+                },
               );
             },
           ),
@@ -288,7 +351,10 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
                 "Color Setting",
                 ["Set. A", "Set. B (Reverse)"],
                 _colorSetting,
-                (val) => setState(() => _colorSetting = val),
+                (val) {
+                  setState(() => _colorSetting = val);
+                  _saveConfig('cfg_color_setting', val);
+                },
               );
             },
           ),
@@ -304,17 +370,22 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
             textColor,
             isDark,
             value: _showDescription,
-            onTap: () => setState(
-              () => _showDescription = _toggleOnOff(_showDescription),
-            ),
+            onTap: () {
+              final newVal = _toggleOnOff(_showDescription);
+              setState(() => _showDescription = newVal);
+              _saveConfig('cfg_show_description', newVal);
+            },
           ),
           _buildListItem(
             "Autocomplete",
             textColor,
             isDark,
             value: _autocomplete,
-            onTap: () =>
-                setState(() => _autocomplete = _toggleOnOff(_autocomplete)),
+            onTap: () {
+              final newVal = _toggleOnOff(_autocomplete);
+              setState(() => _autocomplete = newVal);
+              _saveConfig('cfg_autocomplete', newVal);
+            },
           ),
           _buildListItem(
             "Input order",
@@ -326,7 +397,10 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
                 "Input order",
                 ["From Amount", "From Category"],
                 _inputOrder,
-                (val) => setState(() => _inputOrder = val),
+                (val) {
+                  setState(() => _inputOrder = val);
+                  _saveConfig('cfg_input_order', val);
+                },
               );
             },
           ),
@@ -335,8 +409,11 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
             textColor,
             isDark,
             value: _noteButton,
-            onTap: () =>
-                setState(() => _noteButton = _toggleOnOff(_noteButton)),
+            onTap: () {
+              final newVal = _toggleOnOff(_noteButton);
+              setState(() => _noteButton = newVal);
+              _saveConfig('cfg_note_button', newVal);
+            },
           ),
 
           _buildSectionHeader("Other", isDark),
@@ -345,22 +422,33 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
             textColor,
             isDark,
             value: _passcode,
-            onTap: () => setState(() => _passcode = _toggleOnOff(_passcode)),
+            onTap: () {
+              final newVal = _toggleOnOff(_passcode);
+              setState(() => _passcode = newVal);
+              _saveConfig('cfg_passcode', newVal);
+            },
           ),
           _buildListItem(
             "Alarm Setting",
             textColor,
             isDark,
             value: _alarmSetting,
-            onTap: () =>
-                setState(() => _alarmSetting = _toggleOnOff(_alarmSetting)),
+            onTap: () {
+              final newVal = _toggleOnOff(_alarmSetting);
+              setState(() => _alarmSetting = newVal);
+              _saveConfig('cfg_alarm_setting', newVal);
+            },
           ),
           _buildListItem(
             "Quick add",
             textColor,
             isDark,
             value: _quickAdd,
-            onTap: () => setState(() => _quickAdd = _toggleOnOff(_quickAdd)),
+            onTap: () {
+              final newVal = _toggleOnOff(_quickAdd);
+              setState(() => _quickAdd = newVal);
+              _saveConfig('cfg_quick_add', newVal);
+            },
           ),
           _buildListItem(
             "Style",
