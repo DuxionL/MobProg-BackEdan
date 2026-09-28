@@ -8,6 +8,7 @@ import '../feedback/feedback_page.dart';
 import '../help/help_page.dart';
 import '../recommend/recommend_page.dart';
 import '../../../theme/theme.dart';
+import '../backup/backup_page.dart';
 
 final ValueNotifier<bool> isPasscodeOnNotifier = ValueNotifier<bool>(false);
 final ValueNotifier<String?> passcodeNotifier = ValueNotifier<String?>(null);
@@ -110,6 +111,13 @@ class SettingsGrid extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                       builder: (context) => const PcmanagerPage(),
+                    ),
+                  );
+                } else if (menuItems[index]['label'] == 'Backup') {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const BackupPage(),
                     ),
                   );
                 }
