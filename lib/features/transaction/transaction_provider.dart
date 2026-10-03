@@ -13,8 +13,11 @@ class TransactionProvider extends ChangeNotifier {
   final List<Category> expenseCategories = List.of(
     Category.defaultExpenseCategories,
   );
-  TransactionProvider() {
-    loadTransactions();
+
+  TransactionProvider({bool autoLoad = true}) {
+    if (autoLoad) {
+      loadTransactions();
+    }
   }
 
   List<Transaction> get all => List.unmodifiable(_transactions);
@@ -99,6 +102,23 @@ class TransactionProvider extends ChangeNotifier {
   Future<void> removeTransaction(String id) async {
     await _repository.deleteTransaction(id);
     _transactions.removeWhere((t) => t.id == id);
+    notifyListeners();
+  }
+
+  Future<void> updateTransaction(Transaction transaction) async {
+    await _repository.updateTransaction(transaction);
+    final index = _transactions.indexWhere((t) => t.id == transaction.id);
+    if (index == -1) {
+      _transactions.add(transaction);
+    } else {
+      _transactions[index] = transaction;
+    }
+    _transactions.sort((a, b) {
+      final dateComparison = b.dateTime.compareTo(a.dateTime);
+      return dateComparison != 0
+          ? dateComparison
+          : (b.id ?? '').compareTo(a.id ?? '');
+    });
     notifyListeners();
   }
 

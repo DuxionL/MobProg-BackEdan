@@ -74,17 +74,53 @@ class TransactionListPage extends StatelessWidget {
                         ),
                     ],
                   ),
-                  trailing: Text(
-                    '${transaction.type == TransactionType.expense ? '-' : '+'}${formatRupiah(transaction.amount)}',
-                    style: TextStyle(
-                      color: transaction.color,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
+                  trailing: SizedBox(
+                    width: 104,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Text(
+                          '${transaction.type == TransactionType.expense ? '-' : '+'}${formatRupiah(transaction.amount)}',
+                          style: TextStyle(
+                            color: transaction.color,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        PopupMenuButton<String>(
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(
+                            minWidth: 32,
+                            minHeight: 32,
+                          ),
+                          icon: const Icon(Icons.more_vert, size: 20),
+                          tooltip: 'Transaction actions',
+                          onSelected: (value) => _handleAction(
+                            context,
+                            provider,
+                            transaction,
+                            value,
+                          ),
+                          itemBuilder: (context) => [
+                            const PopupMenuItem(
+                              value: 'edit',
+                              child: Text('Edit'),
+                            ),
+                            const PopupMenuItem(
+                              value: 'duplicate',
+                              child: Text('Duplicate'),
+                            ),
+                            const PopupMenuItem(
+                              value: 'delete',
+                              child: Text('Delete'),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
-                  onLongPress: () {
-                    _showDeleteDialog(context, provider, transaction.id!);
-                  },
                 ),
               );
             },
@@ -115,6 +151,34 @@ class TransactionListPage extends StatelessWidget {
 
   String _formatDate(DateTime dateTime) {
     return '${dateTime.day}/${dateTime.month}/${dateTime.year} ${dateTime.hour}:${dateTime.minute.toString().padLeft(2, '0')}';
+  }
+
+  void _handleAction(
+    BuildContext context,
+    TransactionProvider provider,
+    Transaction transaction,
+    String action,
+  ) {
+    switch (action) {
+      case 'edit':
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => AddTransactionPage(transaction: transaction),
+          ),
+        );
+        break;
+      case 'duplicate':
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) =>
+                AddTransactionPage(transaction: transaction, isDuplicate: true),
+          ),
+        );
+        break;
+      case 'delete':
+        _showDeleteDialog(context, provider, transaction.id!);
+        break;
+    }
   }
 
   void _showDeleteDialog(

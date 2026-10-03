@@ -5,7 +5,14 @@ import 'package:money_manager/models/transaction.dart';
 
 //help
 class AddTransactionPage extends StatefulWidget {
-  const AddTransactionPage({super.key});
+  const AddTransactionPage({
+    super.key,
+    this.transaction,
+    this.isDuplicate = false,
+  });
+
+  final Transaction? transaction;
+  final bool isDuplicate;
 
   @override
   State<AddTransactionPage> createState() => _AddTransactionPageState();
@@ -23,6 +30,24 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
   Account? _account;
   Account? _fromAccount;
   Account? _toAccount;
+
+  bool get _isEditing => widget.transaction != null && !widget.isDuplicate;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.transaction != null) {
+      _type = widget.transaction!.type;
+      _dateTime = widget.transaction!.dateTime;
+      _amountController.text = widget.transaction!.amount.toString();
+      _feeController.text = (widget.transaction!.fee ?? 0).toString();
+      _noteController.text = widget.transaction!.note ?? '';
+      _category = widget.transaction!.category;
+      _account = widget.transaction!.account;
+      _fromAccount = widget.transaction!.fromAccount;
+      _toAccount = widget.transaction!.toAccount;
+    }
+  }
 
   @override
   void dispose() {
@@ -60,7 +85,9 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
     final amount = double.tryParse(_amountController.text) ?? 0;
     if (amount <= 0) return false;
     if (_type == TransactionType.transfer) {
-      return _fromAccount != null && _toAccount != null;
+      if (_fromAccount == null || _toAccount == null) return false;
+      if (_fromAccount!.id == _toAccount!.id) return false;
+      return true;
     }
     return _category != null && _account != null;
   }
@@ -68,7 +95,11 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
   Future<void> _save() async {
     if (!_validate()) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Fill amount, category and account.')),
+        const SnackBar(
+          content: Text(
+            'Fill amount, category and account. Transfers need different accounts.',
+          ),
+        ),
       );
       return;
     }
@@ -76,9 +107,14 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
     final provider = context.read<TransactionProvider>();
     final amount = double.parse(_amountController.text);
     final fee = double.tryParse(_feeController.text) ?? 0;
+    final transactionId = _isEditing
+        ? widget.transaction!.id
+        : (widget.isDuplicate
+              ? DateTime.now().microsecondsSinceEpoch.toString()
+              : DateTime.now().microsecondsSinceEpoch.toString());
 
     final transaction = Transaction(
-      id: DateTime.now().microsecondsSinceEpoch.toString(),
+      id: transactionId,
       type: _type,
       dateTime: _dateTime,
       amount: amount,
@@ -90,7 +126,11 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
       note: _noteController.text.isEmpty ? null : _noteController.text,
     );
 
-    await provider.addTransaction(transaction);
+    if (_isEditing) {
+      await provider.updateTransaction(transaction);
+    } else {
+      await provider.addTransaction(transaction);
+    }
     if (!mounted) return;
     Navigator.of(context).pop();
   }
@@ -103,40 +143,31 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
         : provider.expenseCategories;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Add Transaction')),
+      appBar: AppBar(
+        title: Text(
+          _isEditing
+              ? 'Edit Transaction'
+              : widget.isDuplicate
+              ? 'Duplicate Transaction'
+              : 'Add Transaction',
+        ),
+      ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
           // Type selector
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: TransactionType.values.map((type) {
-              return Flexible(
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(8),
-                  onTap: () => _selectType(type),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 10,
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Radio<TransactionType>(
-                          value: type,
-                          groupValue: _type,
-                          onChanged: (value) {
-                            if (value != null) _selectType(value);
-                          },
-                        ),
-                        Flexible(child: Text(type.label)),
-                      ],
-                    ),
-                  ),
-                ),
-              );
-            }).toList(),
+          SegmentedButton<TransactionType>(
+            segments: TransactionType.values
+                .map(
+                  (type) => ButtonSegment(value: type, label: Text(type.label)),
+                )
+                .toList(),
+            selected: {_type},
+            onSelectionChanged: (selection) {
+              if (selection.isNotEmpty) {
+                _selectType(selection.first);
+              }
+            },
           ),
           const Divider(),
 
@@ -197,28 +228,52 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
     List<Category> categories,
     TransactionProvider provider,
   ) {
+    final selectedCategoryIndex = _category == null
+        ? null
+        : categories.indexWhere(
+            (category) =>
+                category.name == _category!.name &&
+                category.emoji == _category!.emoji,
+          );
+    final categoryValue =
+        selectedCategoryIndex != null && selectedCategoryIndex >= 0
+        ? selectedCategoryIndex
+        : null;
+
     return [
-      DropdownButtonFormField<Category>(
-        initialValue: _category,
+      DropdownButtonFormField<int>(
+        initialValue: categoryValue,
         decoration: const InputDecoration(labelText: 'Category'),
-        items: categories
+        items: [
+          for (var index = 0; index < categories.length; index++)
+            DropdownMenuItem(
+              value: index,
+              child: Text(
+                '${categories[index].emoji} ${categories[index].name}',
+              ),
+            ),
+        ],
+        onChanged: (index) => setState(() {
+          _category = index == null ? null : categories[index];
+        }),
+      ),
+      const SizedBox(height: 12),
+      DropdownButtonFormField<String>(
+        initialValue: _account?.id,
+        decoration: const InputDecoration(labelText: 'Account'),
+        items: provider.accounts
             .map(
-              (c) => DropdownMenuItem(
-                value: c,
-                child: Text('${c.emoji} ${c.name}'),
+              (account) => DropdownMenuItem(
+                value: account.id,
+                child: Text(account.name),
               ),
             )
             .toList(),
-        onChanged: (v) => setState(() => _category = v),
-      ),
-      const SizedBox(height: 12),
-      DropdownButtonFormField<Account>(
-        initialValue: _account,
-        decoration: const InputDecoration(labelText: 'Account'),
-        items: provider.accounts
-            .map((a) => DropdownMenuItem(value: a, child: Text(a.name)))
-            .toList(),
-        onChanged: (v) => setState(() => _account = v),
+        onChanged: (id) => setState(() {
+          _account = id == null
+              ? null
+              : provider.accounts.firstWhere((account) => account.id == id);
+        }),
       ),
     ];
   }
@@ -234,22 +289,40 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
         ),
       ),
       const SizedBox(height: 12),
-      DropdownButtonFormField<Account>(
-        initialValue: _fromAccount,
+      DropdownButtonFormField<String>(
+        initialValue: _fromAccount?.id,
         decoration: const InputDecoration(labelText: 'From'),
         items: provider.accounts
-            .map((a) => DropdownMenuItem(value: a, child: Text(a.name)))
+            .map(
+              (account) => DropdownMenuItem(
+                value: account.id,
+                child: Text(account.name),
+              ),
+            )
             .toList(),
-        onChanged: (v) => setState(() => _fromAccount = v),
+        onChanged: (id) => setState(() {
+          _fromAccount = id == null
+              ? null
+              : provider.accounts.firstWhere((account) => account.id == id);
+        }),
       ),
       const SizedBox(height: 12),
-      DropdownButtonFormField<Account>(
-        initialValue: _toAccount,
+      DropdownButtonFormField<String>(
+        initialValue: _toAccount?.id,
         decoration: const InputDecoration(labelText: 'To'),
         items: provider.accounts
-            .map((a) => DropdownMenuItem(value: a, child: Text(a.name)))
+            .map(
+              (account) => DropdownMenuItem(
+                value: account.id,
+                child: Text(account.name),
+              ),
+            )
             .toList(),
-        onChanged: (v) => setState(() => _toAccount = v),
+        onChanged: (id) => setState(() {
+          _toAccount = id == null
+              ? null
+              : provider.accounts.firstWhere((account) => account.id == id);
+        }),
       ),
     ];
   }
