@@ -8,23 +8,50 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:money_manager/main.dart';
+import 'package:provider/provider.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+
+import 'package:money_manager/features/transaction/screens/transaction_list_page.dart';
+import 'package:money_manager/features/transaction/transaction_provider.dart';
+import 'package:money_manager/models/transaction.dart' as app_models;
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  setUpAll(() {
+    sqfliteFfiInit();
+    databaseFactory = databaseFactoryFfi;
+  });
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+  testWidgets('transaction row exposes edit and duplicate actions', (
+    tester,
+  ) async {
+    final provider = TransactionProvider(autoLoad: false);
+    await provider.addTransaction(
+      app_models.Transaction(
+        id: 'txn-1',
+        dateTime: DateTime(2024, 1, 15, 9, 30),
+        amount: 125000,
+        type: app_models.TransactionType.expense,
+        category: app_models.Category(name: 'Food', emoji: '🍜'),
+        account: app_models.Account(
+          id: 'a1',
+          name: 'Cash',
+          balance: 0,
+          type: app_models.AccountType.cash,
+        ),
+      ),
+    );
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    await tester.pumpWidget(
+      ChangeNotifierProvider<TransactionProvider>.value(
+        value: provider,
+        child: const MaterialApp(home: TransactionListPage()),
+      ),
+    );
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    await tester.tap(find.byIcon(Icons.more_vert));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Edit'), findsOneWidget);
+    expect(find.text('Duplicate'), findsOneWidget);
   });
 }

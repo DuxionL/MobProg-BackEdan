@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../common/currency_formatter.dart';
 import '../../../models/transaction.dart';
 import '../../../theme/theme.dart';
+import '../../transaction/screens/add_transaction_page.dart';
 import '../../transaction/transaction_provider.dart';
 
 class TransactionListItem extends StatelessWidget {
@@ -50,33 +51,102 @@ class TransactionListItem extends StatelessWidget {
             backgroundColor: transaction.color,
             child: Icon(_getIconForType(transaction.type), color: Colors.white),
           ),
-          title: Text(_titleFor(transaction)),
+          title: Text(
+            _titleFor(transaction),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
           subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 _formatTime(transaction.dateTime),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 style: TextStyle(fontSize: 12, color: textSecondary),
               ),
               if (transaction.note != null)
                 Text(
                   transaction.note!,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(fontSize: 11, color: textSecondary),
                 ),
             ],
           ),
           trailing: Text(
             '${transaction.type == TransactionType.expense ? '-' : '+'}${formatRupiah(transaction.amount)}',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: TextStyle(
               color: transaction.color,
               fontWeight: FontWeight.bold,
               fontSize: 16,
             ),
           ),
+          onTap: () => _showActionsSheet(context),
           onLongPress: onLongPress,
         ),
       ),
     );
+  }
+
+  Future<void> _showActionsSheet(BuildContext context) async {
+    final navigator = Navigator.of(context);
+    final provider = context.read<TransactionProvider>();
+
+    final result = await showModalBottomSheet<String>(
+      context: context,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.edit_outlined),
+              title: const Text('Edit'),
+              onTap: () => Navigator.of(context).pop('edit'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.copy_all_outlined),
+              title: const Text('Duplicate'),
+              onTap: () => Navigator.of(context).pop('duplicate'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.delete_outline, color: Colors.red),
+              title: const Text('Delete', style: TextStyle(color: Colors.red)),
+              onTap: () => Navigator.of(context).pop('delete'),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (result == null) return;
+
+    switch (result) {
+      case 'edit':
+        navigator.push(
+          MaterialPageRoute(
+            builder: (context) => AddTransactionPage(transaction: transaction),
+          ),
+        );
+        break;
+      case 'duplicate':
+        navigator.push(
+          MaterialPageRoute(
+            builder: (context) =>
+                AddTransactionPage(transaction: transaction, isDuplicate: true),
+          ),
+        );
+        break;
+      case 'delete':
+        // ignore: use_build_context_synchronously
+        final confirmed = await _confirmDelete(context);
+        if (confirmed && transaction.id != null) {
+          provider.removeTransaction(transaction.id!);
+        }
+        break;
+    }
   }
 
   Future<bool> _confirmDelete(BuildContext context) async {
