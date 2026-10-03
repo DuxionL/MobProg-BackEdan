@@ -36,11 +36,10 @@ class TransactionListItem extends StatelessWidget {
       ),
       confirmDismiss: (direction) => _confirmDelete(context),
       onDismissed: (direction) {
-        if (transaction.id != null) {
-          context.read<TransactionProvider>().removeTransaction(
-            transaction.id!,
-          );
-        }
+        _deleteWithUndo(
+          context.read<TransactionProvider>(),
+          ScaffoldMessenger.of(context),
+        );
       },
       child: Card(
         elevation: 0,
@@ -94,6 +93,7 @@ class TransactionListItem extends StatelessWidget {
   Future<void> _showActionsSheet(BuildContext context) async {
     final navigator = Navigator.of(context);
     final provider = context.read<TransactionProvider>();
+    final messenger = ScaffoldMessenger.of(context);
 
     final result = await showModalBottomSheet<String>(
       context: context,
@@ -143,10 +143,29 @@ class TransactionListItem extends StatelessWidget {
         // ignore: use_build_context_synchronously
         final confirmed = await _confirmDelete(context);
         if (confirmed && transaction.id != null) {
-          provider.removeTransaction(transaction.id!);
+          await _deleteWithUndo(provider, messenger);
         }
         break;
     }
+  }
+
+  Future<void> _deleteWithUndo(
+    TransactionProvider provider,
+    ScaffoldMessengerState messenger,
+  ) async {
+    final id = transaction.id;
+    if (id == null) return;
+
+    await provider.removeTransaction(id);
+    messenger.showSnackBar(
+      SnackBar(
+        content: const Text('Transaction deleted'),
+        action: SnackBarAction(
+          label: 'Undo',
+          onPressed: () async => provider.addTransaction(transaction),
+        ),
+      ),
+    );
   }
 
   Future<bool> _confirmDelete(BuildContext context) async {
@@ -154,7 +173,7 @@ class TransactionListItem extends StatelessWidget {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Delete Transaction?'),
-        content: const Text('This action cannot be undone.'),
+        content: const Text('You can undo this action briefly.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),

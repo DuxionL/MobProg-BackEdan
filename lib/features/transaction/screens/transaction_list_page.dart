@@ -176,7 +176,7 @@ class TransactionListPage extends StatelessWidget {
         );
         break;
       case 'delete':
-        _showDeleteDialog(context, provider, transaction.id!);
+        _showDeleteDialog(context, provider, transaction);
         break;
     }
   }
@@ -184,22 +184,32 @@ class TransactionListPage extends StatelessWidget {
   void _showDeleteDialog(
     BuildContext context,
     TransactionProvider provider,
-    String id,
+    Transaction transaction,
   ) {
+    final messenger = ScaffoldMessenger.of(context);
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Delete Transaction?'),
-        content: const Text('This action cannot be undone.'),
+        content: const Text('You can undo this action briefly.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text('Cancel'),
           ),
           TextButton(
-            onPressed: () {
-              provider.removeTransaction(id);
+            onPressed: () async {
               Navigator.pop(context);
+              await provider.removeTransaction(transaction.id!);
+              messenger.showSnackBar(
+                SnackBar(
+                  content: const Text('Transaction deleted'),
+                  action: SnackBarAction(
+                    label: 'Undo',
+                    onPressed: () async => provider.addTransaction(transaction),
+                  ),
+                ),
+              );
             },
             child: const Text('Delete', style: TextStyle(color: Colors.red)),
           ),
