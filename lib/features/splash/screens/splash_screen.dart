@@ -27,32 +27,35 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final textPrimary = theme.textTheme.bodyLarge!.color;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    final bgColor = isDark ? AppTheme.background : AppTheme.accentRedLight;
+    final iconColor = isDark ? AppTheme.accentRed : Colors.white;
+    final textColor = Colors.white;
 
     return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
+      backgroundColor: bgColor,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
+            Icon(
               Icons.account_balance_wallet,
-              color: AppTheme.accentRed, // CHANGED: tetap oren, gak ikut accent color pilihan user
+              color: iconColor,
               size: 72,
             ),
             const SizedBox(height: 16),
             Text(
               'Money Manager',
               style: TextStyle(
-                color: textPrimary,
+                color: textColor,
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 24),
-            const CircularProgressIndicator(
-              color: AppTheme.accentRed, // CHANGED: tetap oren juga
+            CircularProgressIndicator(
+              color: iconColor,
               strokeWidth: 2,
             ),
           ],
