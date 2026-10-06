@@ -56,14 +56,6 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       ),
       actions: [
         IconButton(
-          icon: Icon(Icons.star_border, color: iconColor),
-          onPressed: onFavoriteTap,
-        ),
-        IconButton(
-          icon: Icon(Icons.search, color: iconColor),
-          onPressed: onSearchTap,
-        ),
-        IconButton(
           icon: Icon(Icons.tune, color: iconColor),
           onPressed: onFilterTap,
         ),
