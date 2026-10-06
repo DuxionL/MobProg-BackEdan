@@ -20,6 +20,9 @@ class _StatisticChartState extends State<StatisticChart> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : Colors.black;
+
     if (widget.statistics.isEmpty) {
       return const SizedBox(
         height: 320,
@@ -129,8 +132,9 @@ class _StatisticChartState extends State<StatisticChart> {
 
                 Text(
                   "${item.emoji} ${item.category}",
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.w600,
+                    color: textColor,
                   ),
                 ),
 

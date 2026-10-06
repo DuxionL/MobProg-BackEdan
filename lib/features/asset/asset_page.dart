@@ -12,6 +12,7 @@ import '../settings/accounts/account_store.dart';
 import 'components/asset_summary_header.dart';
 import 'components/asset_trend_chart.dart';
 import 'components/asset_list_item.dart';
+import 'components/asset_stats_page.dart';
 
 class AssetPage extends StatefulWidget {
   const AssetPage({super.key});
@@ -159,7 +160,18 @@ class _AssetPageState extends State<AssetPage> {
                   style: TextStyle(color: textColor, fontSize: 18),
                 ),
                 actions: [
-                  Icon(Icons.bar_chart, color: textColor),
+                  IconButton(
+                    icon: Icon(Icons.bar_chart, color: textColor),
+                    tooltip: 'Total stats',
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const AssetStatsPage(),
+                        ),
+                      );
+                    },
+                  ),
                   const SizedBox(width: 16),
                   Icon(Icons.more_vert, color: textColor),
                   const SizedBox(width: 16),

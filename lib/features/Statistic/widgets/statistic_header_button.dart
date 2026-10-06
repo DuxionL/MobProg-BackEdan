@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:money_manager/common/currency_formatter.dart';
 
 class StatisticHeaderButton extends StatelessWidget {
   final String title;
@@ -16,8 +17,10 @@ class StatisticHeaderButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: InkWell(
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final activeColor = isDark ? Colors.white : Colors.black;
+
+    return InkWell(
         onTap: onTap,
         child: Container(
           height: 55,
@@ -37,23 +40,22 @@ class StatisticHeaderButton extends StatelessWidget {
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
-                  color: selected ? Colors.white : Colors.grey,
+                  color: selected ? activeColor : Colors.grey,
                 ),
               ),
 
               const SizedBox(width: 8),
 
               Text(
-                "\$${amount.toStringAsFixed(2)}",
+                formatRupiah(amount),
                 style: TextStyle(
                   fontSize: 16,
-                  color: selected ? Colors.white : Colors.grey,
+                  color: selected ? activeColor : Colors.grey,
                 ),
               ),
             ],
           ),
         ),
-      ),
     );
   }
 }

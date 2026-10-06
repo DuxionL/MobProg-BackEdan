@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../common/currency_formatter.dart';
 import '../../../models/transaction.dart';
 import '../../transaction/transaction_provider.dart';
 
@@ -26,6 +27,8 @@ class _StatisticPageState extends State<StatisticPage> {
   @override
   Widget build(BuildContext context) {
     final transactionProvider = context.watch<TransactionProvider>();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : Colors.black;
 
     final currentMonth = DateTime.now();
 
@@ -119,19 +122,21 @@ class _StatisticPageState extends State<StatisticPage> {
                   isIncome
                       ? "Income Categories"
                       : "Expense Categories",
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 18,
+                    color: textColor,
                   ),
                 ),
 
                 const SizedBox(height: 15),
 
                 if (statistics.isEmpty)
-                  const Padding(
-                    padding: EdgeInsets.only(top: 30),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 30),
                     child: Text(
                       "No transaction this month",
+                      style: TextStyle(color: textColor),
                     ),
                   )
                 else
@@ -158,16 +163,21 @@ class _StatisticPageState extends State<StatisticPage> {
                             ),
                           ),
 
-                          title: Text(item.category),
+                          title: Text(
+                            item.category,
+                            style: TextStyle(color: textColor),
+                          ),
 
                           subtitle: Text(
                             "${item.percentage.toStringAsFixed(1)} %",
+                            style: TextStyle(color: textColor),
                           ),
 
                           trailing: Text(
-                            item.total.toStringAsFixed(0),
-                            style: const TextStyle(
+                            formatRupiah(item.total),
+                            style: TextStyle(
                               fontWeight: FontWeight.bold,
+                              color: textColor,
                             ),
                           ),
                         ),
