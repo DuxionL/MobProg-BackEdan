@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:money_manager/models/transaction.dart';
 
 import 'package:money_manager/theme/theme.dart';
+import 'package:money_manager/features/asset/asset_calculator.dart';
 import 'package:money_manager/features/home/widgets/month_picker_dialog.dart';
 import 'package:money_manager/features/settings/accounts/account_store.dart';
 import 'package:money_manager/features/settings/configuration/currency_settings.dart';
@@ -17,7 +18,7 @@ import 'package:money_manager/features/transaction/transaction_provider.dart';
 /// Shows, for the last [_monthCount] months ending at the selected month:
 ///  * a line chart of the total balance (end of each month)
 ///  * a bar chart of income (blue) vs expense (red) per month
-/// Everything is calculated from the saved transactions.
+/// Everything is calculated from the saved transactions only.
 class AssetStatsPage extends StatefulWidget {
   const AssetStatsPage({super.key});
 
@@ -59,66 +60,23 @@ class _AssetStatsPageState extends State<AssetStatsPage> {
 
   // ---- data ---------------------------------------------------------------
 
-  /// Same account matching rules as AssetPage, so the numbers agree with it.
-  String? _resolveItemId(String? accountName, Set<String> ids) {
-    final name = (accountName ?? '').toLowerCase().trim();
-    if (name.isEmpty) return null;
-
-    for (final item in AccountStore.visibleItems) {
-      if (item.name.toLowerCase().trim() == name) return item.id;
-    }
-
-    String? fallback;
-    if (name.contains('cash')) {
-      fallback = 'a_cash';
-    } else if (name.contains('bank') || name.contains('account')) {
-      fallback = 'a_accounts';
-    } else if (name.contains('card')) {
-      fallback = 'a_card';
-    }
-    return (fallback != null && ids.contains(fallback)) ? fallback : null;
-  }
-
-  /// How much a transaction changes the *total* balance.
-  double _delta(Transaction t, Set<String> ids) {
-    double d = 0;
-    void add(String? accountName, double v) {
-      if (_resolveItemId(accountName, ids) != null) d += v;
-    }
-
-    switch (t.type) {
-      case TransactionType.income:
-        add(t.account?.name, t.amount);
-        break;
-      case TransactionType.expense:
-        add(t.account?.name, -t.amount);
-        break;
-      case TransactionType.transfer:
-        add(t.fromAccount?.name, -t.amount);
-        add(t.toAccount?.name, t.amount);
-        break;
-    }
-    return d;
-  }
-
   List<_MonthStat> _buildStats(List<Transaction> all) {
-    final items = AccountStore.visibleItems;
-    final ids = items.map((e) => e.id).toSet();
-    final initial = items.fold<double>(0, (s, i) => s + i.amount);
-
     final stats = <_MonthStat>[];
     for (int i = 0; i < _monthCount; i++) {
       final month = DateTime(_selected.year, _selected.month - (_monthCount - 1) + i);
       final end = DateTime(month.year, month.month + 1); // exclusive
 
-      double income = 0, expense = 0, balance = initial;
+      double income = 0, expense = 0;
       for (final t in all) {
-        if (t.dateTime.isBefore(end)) balance += _delta(t, ids);
         if (t.dateTime.year == month.year && t.dateTime.month == month.month) {
           if (t.type == TransactionType.income) income += t.amount;
           if (t.type == TransactionType.expense) expense += t.amount;
         }
       }
+
+      final balance = AssetCalculator.balances(all, before: end)
+          .values
+          .fold<double>(0, (sum, v) => sum + v);
       stats.add(_MonthStat(month, income, expense, balance));
     }
     return stats;

@@ -3,12 +3,11 @@ import 'package:provider/provider.dart';
 
 import '../transaction/transaction_provider.dart';
 
-import 'package:money_manager/models/transaction.dart';
-
 import '../../theme/theme.dart';
 import '../settings/configuration/currency_settings.dart';
 import '../settings/accounts/account_store.dart';
 
+import 'asset_calculator.dart';
 import 'components/asset_summary_header.dart';
 import 'components/asset_trend_chart.dart';
 import 'components/asset_list_item.dart';
@@ -28,49 +27,6 @@ class _AssetPageState extends State<AssetPage> {
     AccountStore.load();
   }
 
-  String? _resolveItemId(String? accountName, Map<String, double> balances) {
-    final name = (accountName ?? "").toLowerCase().trim();
-    if (name.isEmpty) return null;
-
-    for (final item in AccountStore.visibleItems) {
-      if (item.name.toLowerCase().trim() == name) return item.id;
-    }
-
-    String? fallback;
-    if (name.contains('cash')) {
-      fallback = 'a_cash';
-    } else if (name.contains('bank') || name.contains('account')) {
-      fallback = 'a_accounts';
-    } else if (name.contains('card')) {
-      fallback = 'a_card';
-    }
-    return balances.containsKey(fallback) ? fallback : null;
-  }
-
-  Map<String, double> _calculateBalances(List<Transaction> transactions) {
-    final balances = <String, double>{
-      for (final item in AccountStore.visibleItems) item.id: item.amount,
-    };
-
-    void add(String? accountName, double value) {
-      final id = _resolveItemId(accountName, balances);
-      if (id != null) balances[id] = balances[id]! + value;
-    }
-
-    for (final t in transactions) {
-      if (t.type == TransactionType.income) {
-        add(t.account?.name, t.amount);
-      } else if (t.type == TransactionType.expense) {
-        add(t.account?.name, -t.amount);
-      } else if (t.type == TransactionType.transfer) {
-        add(t.fromAccount?.name, -t.amount);
-        add(t.toAccount?.name, t.amount);
-      }
-    }
-
-    return balances;
-  }
-
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -87,7 +43,7 @@ class _AssetPageState extends State<AssetPage> {
             CurrencySettings.notifier,
           ]),
           builder: (context, child) {
-            final balances = _calculateBalances(transProvider.all);
+            final balances = AssetCalculator.balances(transProvider.all);
             final items = AccountStore.visibleItems;
 
             double totalAssets = 0.0;
