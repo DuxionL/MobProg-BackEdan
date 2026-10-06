@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 
 import '../../../theme/theme.dart';
 
-const String feedbackEmail = 'your-email@example.com';
+const String feedbackEmail = 'edan123@gmail.com';
 
 const String _specialThanks = 'To the Project Team : 535250077 - Garry Malvin Jiu, 535250078 - Moureno Surianto, 535250081 - Steven Verdychen, 535250087 - Gilbert Immanuel Susanto, 535250093 - Jessica Jeslyn Sutanto';
 
