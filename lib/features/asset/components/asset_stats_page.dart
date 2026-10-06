@@ -13,12 +13,6 @@ import 'package:money_manager/features/settings/accounts/account_store.dart';
 import 'package:money_manager/features/settings/configuration/currency_settings.dart';
 import 'package:money_manager/features/transaction/transaction_provider.dart';
 
-/// "Total Stats" page opened from the chart button on the Accounts page.
-///
-/// Shows, for the last [_monthCount] months ending at the selected month:
-///  * a line chart of the total balance (end of each month)
-///  * a bar chart of income (blue) vs expense (red) per month
-/// Everything is calculated from the saved transactions only.
 class AssetStatsPage extends StatefulWidget {
   const AssetStatsPage({super.key});
 
@@ -30,7 +24,7 @@ class _MonthStat {
   final DateTime month;
   final double income;
   final double expense;
-  final double balance; // total balance at the end of this month
+  final double balance;
 
   const _MonthStat(this.month, this.income, this.expense, this.balance);
 }
@@ -58,13 +52,12 @@ class _AssetStatsPageState extends State<AssetStatsPage> {
     }
   }
 
-  // ---- data ---------------------------------------------------------------
 
   List<_MonthStat> _buildStats(List<Transaction> all) {
     final stats = <_MonthStat>[];
     for (int i = 0; i < _monthCount; i++) {
       final month = DateTime(_selected.year, _selected.month - (_monthCount - 1) + i);
-      final end = DateTime(month.year, month.month + 1); // exclusive
+      final end = DateTime(month.year, month.month + 1);
 
       double income = 0, expense = 0;
       for (final t in all) {
@@ -82,7 +75,6 @@ class _AssetStatsPageState extends State<AssetStatsPage> {
     return stats;
   }
 
-  // ---- formatting ---------------------------------------------------------
 
   String _fmt(double v) {
     final decimals = CurrencySettings.notifier.value.decimals;
@@ -107,7 +99,6 @@ class _AssetStatsPageState extends State<AssetStatsPage> {
     return '$sign${f(a)}';
   }
 
-  /// Rounds the chart range to "nice" numbers (1, 2, 5 x 10^n).
   ({double min, double max, double interval}) _axis(double lo, double hi) {
     lo = math.min(lo, 0);
     hi = math.max(hi, 0);
@@ -122,8 +113,6 @@ class _AssetStatsPageState extends State<AssetStatsPage> {
       interval: step,
     );
   }
-
-  // ---- widgets ------------------------------------------------------------
 
   @override
   Widget build(BuildContext context) {
@@ -372,7 +361,6 @@ class _AssetStatsPageState extends State<AssetStatsPage> {
     );
   }
 
-  /// Month name + value rows under a chart, one column per month.
   Widget _labels(
     List<_MonthStat> stats,
     Color text,

@@ -2,9 +2,6 @@ import 'package:money_manager/models/transaction.dart';
 
 import '../settings/accounts/account_store.dart';
 
-/// Single source of truth for account balances.
-/// Balances come ONLY from saved transactions, so when transactions are
-/// deleted/reset, the Accounts page and Total Stats go back to zero too.
 class AssetCalculator {
   AssetCalculator._();
 
@@ -27,8 +24,6 @@ class AssetCalculator {
     return (fallback != null && ids.contains(fallback)) ? fallback : null;
   }
 
-  /// Balance per visible account id. Pass [before] to only count
-  /// transactions dated before that moment (used for monthly history).
   static Map<String, double> balances(
     List<Transaction> transactions, {
     DateTime? before,
