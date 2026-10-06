@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import 'components/settings_grid.dart';
-import 'components/search_bar_widget.dart';
 import '../../theme/theme.dart';
 
 class SettingsPage extends StatelessWidget {
@@ -35,19 +34,11 @@ class SettingsPage extends StatelessWidget {
         ],
       ),
       body: SafeArea(
-        child: Column(
-          children: [
-            const SearchBarWidget(),
-
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [SettingsGrid()],
-                ),
-              ),
-            ),
-          ],
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: const [SettingsGrid()],
+          ),
         ),
       ),
     );
