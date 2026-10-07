@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:money_manager/features/daily/screens/daily_tab.dart';
 import 'package:money_manager/features/daily/screens/calendar_tab.dart';
+import 'package:money_manager/features/daily/screens/monthly_tab.dart';
+import 'package:money_manager/features/daily/screens/total_tab.dart';
 import 'package:money_manager/theme/theme.dart';
 
 class TabBarWrapper extends StatelessWidget {
@@ -53,8 +55,8 @@ class TabBarWrapper extends StatelessWidget {
                   selectedCategories: selectedCategories,
                   selectedAccounts: selectedAccounts,
                 ),
-                const Center(child: Text('Monthly Tab')),
-                const Center(child: Text('Total Tab')),
+                MonthlyTab(month: month),
+                TotalTab(month: month),
                 const Center(child: Text('Note Tab')),
               ],
             ),
