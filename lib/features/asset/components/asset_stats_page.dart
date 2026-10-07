@@ -52,12 +52,10 @@ class _AssetStatsPageState extends State<AssetStatsPage> {
     }
   }
 
-
   List<_MonthStat> _buildStats(List<Transaction> all) {
     final stats = <_MonthStat>[];
     for (int i = 0; i < _monthCount; i++) {
       final month = DateTime(_selected.year, _selected.month - (_monthCount - 1) + i);
-      final end = DateTime(month.year, month.month + 1);
 
       double income = 0, expense = 0;
       for (final t in all) {
@@ -67,14 +65,13 @@ class _AssetStatsPageState extends State<AssetStatsPage> {
         }
       }
 
-      final balance = AssetCalculator.balances(all, before: end)
+      final balance = AssetCalculator.balances(all, month: month)
           .values
           .fold<double>(0, (sum, v) => sum + v);
       stats.add(_MonthStat(month, income, expense, balance));
     }
     return stats;
   }
-
 
   String _fmt(double v) {
     final decimals = CurrencySettings.notifier.value.decimals;

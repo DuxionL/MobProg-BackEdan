@@ -14,7 +14,9 @@ import 'components/asset_list_item.dart';
 import 'components/asset_stats_page.dart';
 
 class AssetPage extends StatefulWidget {
-  const AssetPage({super.key});
+  final DateTime? month;
+
+  const AssetPage({super.key, this.month});
 
   @override
   State<AssetPage> createState() => _AssetPageState();
@@ -43,7 +45,10 @@ class _AssetPageState extends State<AssetPage> {
             CurrencySettings.notifier,
           ]),
           builder: (context, child) {
-            final balances = AssetCalculator.balances(transProvider.all);
+            final balances = AssetCalculator.balances(
+              transProvider.all,
+              month: widget.month ?? DateTime.now(),
+            );
             final items = AccountStore.visibleItems;
 
             double totalAssets = 0.0;

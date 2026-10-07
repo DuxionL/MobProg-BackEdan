@@ -85,7 +85,7 @@ class _HomePageState extends State<HomePage> {
         },
       ),
       const StatisticPage(),
-      const AssetPage(),
+      AssetPage(month: _currentMonth),
       const SettingsPage(),
     ];
 
@@ -159,4 +159,4 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
-} 
+}

@@ -26,7 +26,7 @@ class AssetCalculator {
 
   static Map<String, double> balances(
     List<Transaction> transactions, {
-    DateTime? before,
+    DateTime? month,
   }) {
     final balances = <String, double>{
       for (final item in AccountStore.visibleItems) item.id: 0.0,
@@ -39,7 +39,10 @@ class AssetCalculator {
     }
 
     for (final t in transactions) {
-      if (before != null && !t.dateTime.isBefore(before)) continue;
+      if (month != null &&
+          (t.dateTime.year != month.year || t.dateTime.month != month.month)) {
+        continue;
+      }
 
       switch (t.type) {
         case TransactionType.income:

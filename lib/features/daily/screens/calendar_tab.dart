@@ -44,8 +44,7 @@ class _CalendarTabState extends State<CalendarTab> {
   }
 
   void _jumpToToday() {
-    final now = DateTime.now();
-    setState(() => _selectedDay = DateTime(now.year, now.month, now.day));
+    setState(() => _selectedDay = DateTime.now());
     widget.onJumpToToday?.call();
   }
 
@@ -158,15 +157,10 @@ class _CalendarTabState extends State<CalendarTab> {
             _isSameDay(_selectedDay!, normalizedDay);
         final isToday = _isSameDay(DateTime.now(), normalizedDay);
 
-        // Transfer tidak dihitung ke net harian (konsisten dengan SummaryHeader)
         double net = 0;
         for (final t in transactions) {
-          if (t.type == TransactionType.transfer) continue;
           net += (t.type == TransactionType.expense) ? -t.amount : t.amount;
         }
-        final hasNet = transactions.any(
-          (t) => t.type != TransactionType.transfer,
-        );
 
         final categoryLabels = transactions
             .map((t) => t.category?.name ?? 'Transfer')
@@ -219,14 +213,15 @@ class _CalendarTabState extends State<CalendarTab> {
                         )
                         .toList(),
                   ),
-                  if (hasNet)
-                    Text(
-                      _compact(net),
-                      style: TextStyle(
-                        fontSize: 8,
-                        color: net >= 0 ? Colors.blue : AppTheme.accentRed,
-                      ),
+                  Text(
+                    net.abs() >= 1000
+                        ? '${(net.abs() / 1000).toStringAsFixed(0)}k'
+                        : net.abs().toStringAsFixed(0),
+                    style: TextStyle(
+                      fontSize: 8,
+                      color: net >= 0 ? Colors.blue : AppTheme.accentRed,
                     ),
+                  ),
                 ],
               ],
             ),
@@ -238,24 +233,20 @@ class _CalendarTabState extends State<CalendarTab> {
 
   static const _categoryColors = {
     // Income
-    'Allowance': Color(0xFF66BB6A),
     'Salary': Color(0xFFFFC107),
-    'Petty cash': Color(0xFF00BCD4),
     'Bonus': Color(0xFFEF5350),
+    'Refund': Color(0xFF66BB6A),
+    'Interest': Color(0xFF00BCD4),
+    'Other Income': Color(0xFF9E9E9E),
     // Expense
     'Food': Color(0xFFFFA726),
-    'Social Life': Color(0xFFAB47BC),
-    'Pets': Color(0xFF8D6E63),
-    'Transport': Color(0xFF546E7A),
-    'Culture': Color(0xFF5C6BC0),
-    'Household': Color(0xFF9E9D24),
-    'Apparel': Color(0xFFEC407A),
-    'Beauty': Color(0xFFF48FB1),
-    'Health': Color(0xFF26A69A),
+    'Transportation': Color(0xFF546E7A),
+    'Utilities': Color(0xFF9E9D24),
+    'Entertainment': Color(0xFF5C6BC0),
+    'Shopping': Color(0xFFEC407A),
+    'Healthcare': Color(0xFF26A69A),
     'Education': Color(0xFF42A5F5),
-    'Gift': Color(0xFFFFCA28),
-    // Income & Expense
-    'Other': Color(0xFF9E9E9E),
+    'Other Expense': Color(0xFF8D6E63),
 
     'Transfer': Colors.purple,
   };
