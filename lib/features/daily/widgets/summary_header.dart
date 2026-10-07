@@ -12,9 +12,6 @@ class SummaryHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textPrimary = Theme.of(context).textTheme.bodyLarge!.color;
-    final dividerColor = Theme.of(context).dividerColor;
-
     return Consumer<TransactionProvider>(
       builder: (context, provider, _) {
         final income = provider.totalIncome(month);
@@ -27,32 +24,59 @@ class SummaryHeader extends StatelessWidget {
             ? ((total - previousTotal) / previousTotal.abs()) * 100
             : null;
 
-        return Container(
-          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
-          decoration: BoxDecoration(
-            border: Border(
-              bottom: BorderSide(color: dividerColor, width: 0.5),
-            ),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _SummaryItem(label: 'Income', value: income, color: Colors.blue),
-              _SummaryItem(
-                label: 'Expenses',
-                value: expense,
-                color: AppTheme.accentRed,
-              ),
-              _SummaryItem(
-                label: 'Total',
-                value: total,
-                color: textPrimary!,
-                percentChange: percentChange,
-              ),
-            ],
-          ),
+        return SummaryBar(
+          income: income,
+          expense: expense,
+          total: total,
+          percentChange: percentChange,
         );
       },
+    );
+  }
+}
+
+/// Reusable Income / Expenses / Total bar (no provider dependency).
+class SummaryBar extends StatelessWidget {
+  final double income;
+  final double expense;
+  final double total;
+  final double? percentChange;
+
+  const SummaryBar({
+    super.key,
+    required this.income,
+    required this.expense,
+    required this.total,
+    this.percentChange,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final textPrimary = Theme.of(context).textTheme.bodyLarge!.color;
+    final dividerColor = Theme.of(context).dividerColor;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: dividerColor, width: 0.5)),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          _SummaryItem(label: 'Income', value: income, color: Colors.blue),
+          _SummaryItem(
+            label: 'Expenses',
+            value: expense,
+            color: AppTheme.accentRed,
+          ),
+          _SummaryItem(
+            label: 'Total',
+            value: total,
+            color: textPrimary!,
+            percentChange: percentChange,
+          ),
+        ],
+      ),
     );
   }
 }
@@ -76,10 +100,7 @@ class _SummaryItem extends StatelessWidget {
 
     return Column(
       children: [
-        Text(
-          label,
-          style: TextStyle(color: textSecondary, fontSize: 13),
-        ),
+        Text(label, style: TextStyle(color: textSecondary, fontSize: 13)),
         const SizedBox(height: 4),
         Text(
           formatRupiah(value),

@@ -4,6 +4,7 @@ import 'package:money_manager/common/currency_formatter.dart';
 import 'package:money_manager/features/transaction/transaction_provider.dart';
 import 'package:money_manager/features/transaction/screens/add_transaction_page.dart';
 import 'package:money_manager/models/transaction.dart';
+import 'package:money_manager/theme/theme.dart';
 
 class TransactionListPage extends StatelessWidget {
   const TransactionListPage({super.key});
@@ -199,13 +200,24 @@ class TransactionListPage extends StatelessWidget {
           ),
           TextButton(
             onPressed: () async {
+              final isDark = Theme.of(context).brightness == Brightness.dark;
               Navigator.pop(context);
               await provider.removeTransaction(transaction.id!);
               messenger.showSnackBar(
                 SnackBar(
-                  content: const Text('Transaction deleted'),
+                  backgroundColor: isDark
+                      ? AppTheme.background
+                      : AppTheme.surfaceLight,
+                  dismissDirection: DismissDirection.horizontal,
+                  content: Text(
+                    'Transaction deleted',
+                    style: TextStyle(
+                      color: isDark ? Colors.white : Colors.black,
+                    ),
+                  ),
                   action: SnackBarAction(
                     label: 'Undo',
+                    textColor: isDark ? Colors.white : Colors.black,
                     onPressed: () async => provider.addTransaction(transaction),
                   ),
                 ),

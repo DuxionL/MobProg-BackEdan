@@ -39,6 +39,7 @@ class TransactionListItem extends StatelessWidget {
         _deleteWithUndo(
           context.read<TransactionProvider>(),
           ScaffoldMessenger.of(context),
+          Theme.of(context).brightness == Brightness.dark,
         );
       },
       child: Card(
@@ -143,7 +144,11 @@ class TransactionListItem extends StatelessWidget {
         // ignore: use_build_context_synchronously
         final confirmed = await _confirmDelete(context);
         if (confirmed && transaction.id != null) {
-          await _deleteWithUndo(provider, messenger);
+          await _deleteWithUndo(
+            provider,
+            messenger,
+            Theme.of(context).brightness == Brightness.dark,
+          );
         }
         break;
     }
@@ -152,6 +157,7 @@ class TransactionListItem extends StatelessWidget {
   Future<void> _deleteWithUndo(
     TransactionProvider provider,
     ScaffoldMessengerState messenger,
+    bool isDark,
   ) async {
     final id = transaction.id;
     if (id == null) return;
@@ -159,9 +165,15 @@ class TransactionListItem extends StatelessWidget {
     await provider.removeTransaction(id);
     messenger.showSnackBar(
       SnackBar(
-        content: const Text('Transaction deleted'),
+        backgroundColor: isDark ? AppTheme.background : AppTheme.surfaceLight,
+        dismissDirection: DismissDirection.horizontal,
+        content: Text(
+          'Transaction deleted',
+          style: TextStyle(color: isDark ? Colors.white : Colors.black),
+        ),
         action: SnackBarAction(
           label: 'Undo',
+          textColor: isDark ? Colors.white : Colors.black,
           onPressed: () async => provider.addTransaction(transaction),
         ),
       ),
