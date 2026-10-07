@@ -166,15 +166,24 @@ class TransactionListItem extends StatelessWidget {
     messenger.showSnackBar(
       SnackBar(
         backgroundColor: isDark ? AppTheme.background : AppTheme.surfaceLight,
+        duration: const Duration(seconds: 5),
         dismissDirection: DismissDirection.horizontal,
-        content: Text(
-          'Transaction deleted',
-          style: TextStyle(color: isDark ? Colors.white : Colors.black),
-        ),
-        action: SnackBarAction(
-          label: 'Undo',
-          textColor: isDark ? Colors.white : Colors.black,
-          onPressed: () async => provider.addTransaction(transaction),
+        content: Row(
+          children: [
+            Expanded(
+              child: Text(
+                'Transaction deleted',
+                style: TextStyle(color: isDark ? Colors.white : Colors.black),
+              ),
+            ),
+            TextButton(
+              onPressed: () async => provider.addTransaction(transaction),
+              style: TextButton.styleFrom(
+                foregroundColor: isDark ? Colors.white : Colors.black,
+              ),
+              child: const Text('Undo'),
+            ),
+          ],
         ),
       ),
     );
