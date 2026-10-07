@@ -106,7 +106,10 @@ class _CategoryFilterPageState extends State<CategoryFilterPage>
           child: SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: AppTheme.accentRed),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.accentRed,
+                foregroundColor: Colors.white,
+              ),
               onPressed: () => Navigator.of(context).pop(
                 FilterSelection(
                   categories: _selectedCategories,
