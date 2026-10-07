@@ -76,6 +76,14 @@ class AppTheme {
         secondary: accentColor,
         surface: surfaceLight,
       ),
+      textSelectionTheme: const TextSelectionThemeData(
+        cursorColor: textPrimaryLight,
+      ),
+      inputDecorationTheme: const InputDecorationTheme(
+        focusedBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: textPrimaryLight, width: 2),
+        ),
+      ),
       appBarTheme: AppBarTheme(
         backgroundColor: accentColor,
         elevation: 0,
