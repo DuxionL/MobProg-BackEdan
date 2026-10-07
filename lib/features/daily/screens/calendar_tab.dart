@@ -30,6 +30,19 @@ class _CalendarTabState extends State<CalendarTab> {
 
   static const _dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
+  // 100600 -> "100.6k", 2000000 -> "2M", 500 -> "500"
+  String _compact(double v) {
+    final a = v.abs();
+    if (a >= 1000000) return '${_trim(a / 1000000)}M';
+    if (a >= 1000) return '${_trim(a / 1000)}k';
+    return a.toStringAsFixed(0);
+  }
+
+  String _trim(double x) {
+    final s = x.toStringAsFixed(1);
+    return s.endsWith('.0') ? s.substring(0, s.length - 2) : s;
+  }
+
   void _jumpToToday() {
     final now = DateTime.now();
     setState(() => _selectedDay = DateTime(now.year, now.month, now.day));
@@ -145,15 +158,10 @@ class _CalendarTabState extends State<CalendarTab> {
             _isSameDay(_selectedDay!, normalizedDay);
         final isToday = _isSameDay(DateTime.now(), normalizedDay);
 
-        // Transfer tidak dihitung ke net harian (uang cuma pindah akun)
         double net = 0;
         for (final t in transactions) {
-          if (t.type == TransactionType.transfer) continue;
           net += (t.type == TransactionType.expense) ? -t.amount : t.amount;
         }
-        final hasNet = transactions.any(
-          (t) => t.type != TransactionType.transfer,
-        );
 
         final categoryLabels = transactions
             .map((t) => t.category?.name ?? 'Transfer')
@@ -206,16 +214,13 @@ class _CalendarTabState extends State<CalendarTab> {
                         )
                         .toList(),
                   ),
-                  if (hasNet)
-                    Text(
-                      net.abs() >= 1000
-                          ? '${(net.abs() / 1000).toStringAsFixed(0)}k'
-                          : net.abs().toStringAsFixed(0),
-                      style: TextStyle(
-                        fontSize: 8,
-                        color: net >= 0 ? Colors.blue : AppTheme.accentRed,
-                      ),
+                  Text(
+                    _compact(net),
+                    style: TextStyle(
+                      fontSize: 8,
+                      color: net >= 0 ? Colors.blue : AppTheme.accentRed,
                     ),
+                  ),
                 ],
               ],
             ),
