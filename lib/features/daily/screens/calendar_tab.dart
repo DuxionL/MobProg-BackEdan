@@ -158,10 +158,15 @@ class _CalendarTabState extends State<CalendarTab> {
             _isSameDay(_selectedDay!, normalizedDay);
         final isToday = _isSameDay(DateTime.now(), normalizedDay);
 
+        // Transfer tidak dihitung ke net harian (konsisten dengan SummaryHeader)
         double net = 0;
         for (final t in transactions) {
+          if (t.type == TransactionType.transfer) continue;
           net += (t.type == TransactionType.expense) ? -t.amount : t.amount;
         }
+        final hasNet = transactions.any(
+          (t) => t.type != TransactionType.transfer,
+        );
 
         final categoryLabels = transactions
             .map((t) => t.category?.name ?? 'Transfer')
@@ -214,13 +219,14 @@ class _CalendarTabState extends State<CalendarTab> {
                         )
                         .toList(),
                   ),
-                  Text(
-                    _compact(net),
-                    style: TextStyle(
-                      fontSize: 8,
-                      color: net >= 0 ? Colors.blue : AppTheme.accentRed,
+                  if (hasNet)
+                    Text(
+                      _compact(net),
+                      style: TextStyle(
+                        fontSize: 8,
+                        color: net >= 0 ? Colors.blue : AppTheme.accentRed,
+                      ),
                     ),
-                  ),
                 ],
               ],
             ),
