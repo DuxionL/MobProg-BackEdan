@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:money_manager/features/transaction/transaction_provider.dart';
 import 'package:money_manager/models/transaction.dart';
+import 'package:money_manager/theme/theme.dart';
 
 //help
 class AddTransactionPage extends StatefulWidget {
@@ -205,7 +206,18 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
             ),
 
             const SizedBox(height: 24),
-            ElevatedButton(onPressed: _save, child: const Text('Save')),
+            ElevatedButton(
+              onPressed: _save,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).brightness == Brightness.dark
+                    ? AppTheme.surface
+                    : AppTheme.surfaceLight,
+                foregroundColor: Theme.of(context).brightness == Brightness.dark
+                    ? AppTheme.accentRed
+                    : AppTheme.textPrimaryLight,
+              ),
+              child: const Text('Save'),
+            ),
           ],
         ),
       ),

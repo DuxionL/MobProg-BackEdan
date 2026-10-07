@@ -4,6 +4,7 @@ import 'package:money_manager/common/currency_formatter.dart';
 import 'package:money_manager/features/transaction/transaction_provider.dart';
 import 'package:money_manager/features/transaction/screens/add_transaction_page.dart';
 import 'package:money_manager/models/transaction.dart';
+import 'package:money_manager/theme/theme.dart';
 
 class TransactionListPage extends StatelessWidget {
   const TransactionListPage({super.key});
@@ -199,14 +200,36 @@ class TransactionListPage extends StatelessWidget {
           ),
           TextButton(
             onPressed: () async {
+              final isDark = Theme.of(context).brightness == Brightness.dark;
               Navigator.pop(context);
               await provider.removeTransaction(transaction.id!);
               messenger.showSnackBar(
                 SnackBar(
-                  content: const Text('Transaction deleted'),
-                  action: SnackBarAction(
-                    label: 'Undo',
-                    onPressed: () async => provider.addTransaction(transaction),
+                  backgroundColor: isDark
+                      ? AppTheme.background
+                      : AppTheme.surfaceLight,
+                  duration: const Duration(seconds: 5),
+                  dismissDirection: DismissDirection.horizontal,
+                  content: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          'Transaction deleted',
+                          style: TextStyle(
+                            color: isDark ? Colors.white : Colors.black,
+                          ),
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () async =>
+                            provider.addTransaction(transaction),
+                        style: TextButton.styleFrom(
+                          foregroundColor:
+                              isDark ? Colors.white : Colors.black,
+                        ),
+                        child: const Text('Undo'),
+                      ),
+                    ],
                   ),
                 ),
               );

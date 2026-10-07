@@ -30,6 +30,19 @@ class _CalendarTabState extends State<CalendarTab> {
 
   static const _dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
+  // 100600 -> "100.6k", 2000000 -> "2M", 500 -> "500"
+  String _compact(double v) {
+    final a = v.abs();
+    if (a >= 1000000) return '${_trim(a / 1000000)}M';
+    if (a >= 1000) return '${_trim(a / 1000)}k';
+    return a.toStringAsFixed(0);
+  }
+
+  String _trim(double x) {
+    final s = x.toStringAsFixed(1);
+    return s.endsWith('.0') ? s.substring(0, s.length - 2) : s;
+  }
+
   void _jumpToToday() {
     setState(() => _selectedDay = DateTime.now());
     widget.onJumpToToday?.call();
